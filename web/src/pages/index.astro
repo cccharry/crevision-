@@ -1,71 +1,143 @@
 ---
-/**
- * 新版前台入口（Astro + Sanity）。
- * 现有静态页仍保留在仓库根目录 index.html，迁移完成后可将站点根目录切到 web/dist。
- */
-const title = 'Cre-Vision';
+/** 站点根路径：作品展示首页（与 /projects 相同数据源与列表逻辑） */
+const siteTitle = 'Cre-Vision';
 ---
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} · CMS 前台（开发中）</title>
+    <title>{siteTitle} · 作品</title>
     <style>
       body {
-        font-family: system-ui, sans-serif;
-        max-width: 42rem;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        max-width: 48rem;
         margin: 2rem auto;
         padding: 0 1rem;
-        line-height: 1.6;
+        line-height: 1.5;
+        color: #111;
       }
-      code { background: #f4f4f4; padding: 0.15rem 0.35rem; }
-      .admin-box {
-        margin: 1.75rem 0;
-        padding: 1.25rem 1.35rem;
-        border: 2px solid #B63FFF;
-        border-radius: 10px;
-        background: #faf5ff;
+      .site-head {
+        margin-bottom: 1.75rem;
       }
-      .admin-box h2 {
-        margin: 0 0 0.75rem;
-        font-size: 1.1rem;
-        color: #111827;
+      .site-head h1 {
+        margin: 0 0 0.35rem;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
       }
-      .admin-box ul { margin: 0; padding-left: 1.25rem; }
-      .admin-box li { margin: 0.45rem 0; }
-      .admin-box a { color: #B63FFF; font-weight: 600; }
-      .admin-box p {
-        margin: 0.75rem 0 0;
-        font-size: 0.9rem;
+      .site-head p {
+        margin: 0;
+        font-size: 0.9375rem;
+        color: #6b7280;
+      }
+      .warn {
+        background: #fff3cd;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+      }
+      ul {
+        padding-left: 0;
+        list-style: none;
+        margin: 0;
+      }
+      .thumb {
+        width: 120px;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+        border-radius: 6px;
+        background: #e5e7eb;
+        vertical-align: middle;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+      li {
+        margin: 12px 0;
+        display: flex;
+        align-items: center;
+      }
+      li a {
+        color: #111;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      li a:hover {
+        text-decoration: underline;
+      }
+      .meta {
+        margin-top: 1.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+      .foot {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.8125rem;
+      }
+      .foot a {
         color: #6b7280;
       }
     </style>
   </head>
   <body>
-    <h1>Cre-Vision 新版前台</h1>
+    <header class="site-head">
+      <h1>{siteTitle}</h1>
+      <p>作品集 · 从云端同步展示的项目</p>
+    </header>
 
-    <div class="admin-box">
-      <h2>后台界面预览（本地开发）</h2>
-      <p style="margin-top: 0; margin-bottom: 0.75rem">
-        下面链接在同一站点内，请先在本机运行 <code>cd web && npm run dev</code>，再用浏览器打开。
-      </p>
-      <ul>
-        <li><a href="/admin/projects">Projects 后台（列表 / 新建弹窗）</a></li>
-        <li><a href="/admin/information">Information Management（Who we are）</a></li>
-        <li><a href="/admin/settings">Settings 占位</a></li>
-        <li><a href="/auth/login">登录页</a> · <a href="/auth/forgot-password">找回密码</a></li>
-      </ul>
-      <p>若点开是空白或打不开，说明开发服务器未启动，需在终端执行上面的 <code>npm run dev</code>。</p>
+    <div id="root">
+      <p>加载中…</p>
     </div>
 
-    <p>
-      本目录为 <strong>Astro</strong> 工程，数据来自 <strong>Sanity</strong>（配置好环境变量后构建即可拉取案例）。
-    </p>
-    <p>当前仓库根目录的 <code>index.html</code> 等仍为线上静态版；迁移完成后用 <code>web/dist</code> 部署即可。</p>
-    <ul>
-      <li><a href="/projects">案例列表（接入 Sanity 后）</a></li>
-    </ul>
-    <p><a href="../index.html">返回旧版静态首页（相对路径）</a></p>
+    <p class="meta" id="updated-line" hidden></p>
+
+    <footer class="foot">
+      <a href="/admin">站点管理</a>
+    </footer>
+
+    <script>
+      import { fetchPublicProjects, projectTitle, type PublicProject } from '../scripts/public-cms-projects.ts';
+
+      const root = document.getElementById('root');
+      const updatedLine = document.getElementById('updated-line');
+
+      function esc(s: string): string {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      void (async () => {
+        if (!root) return;
+        const { projects, updatedAt } = await fetchPublicProjects();
+        if (projects.length === 0) {
+          root.innerHTML = `<div class="warn">
+            暂无展示中的案例。请在 <a href="/admin/projects">管理后台</a> 创建或编辑项目，勾选「Projects Page」展示，并确保已配置 Cloudflare KV 与 Pages Functions。
+          </div>`;
+          if (updatedLine) {
+            updatedLine.hidden = false;
+            updatedLine.textContent = `数据更新时间：${updatedAt || '—'}`;
+          }
+          return;
+        }
+        const items = projects
+          .map((p: PublicProject) => {
+            const slug = String(p.slug || '').trim();
+            const href = `/projects/view?slug=${encodeURIComponent(slug)}`;
+            const thumb = p.heroImageDataUrl
+              ? `<img class="thumb" src="${esc(String(p.heroImageDataUrl))}" alt="" />`
+              : `<span class="thumb" aria-hidden="true"></span>`;
+            return `<li>${thumb}<a href="${href}">${esc(projectTitle(p))}</a></li>`;
+          })
+          .join('');
+        root.innerHTML = `<ul>${items}</ul>`;
+        if (updatedLine) {
+          updatedLine.hidden = false;
+          updatedLine.textContent = `数据更新时间：${updatedAt || '—'}`;
+        }
+      })();
+    </script>
   </body>
 </html>
