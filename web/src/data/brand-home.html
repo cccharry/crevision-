@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cre-Vision | Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,500;1,300;1,600&family=Noto+Sans+SC:wght@300&family=Poppins:wght@200;400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cre-purple: #B63FFF;
+            --padding-x: calc(200 / 1920 * 100vw);
+            --img-h: calc(640 / 1920 * 100vw);
+            --text-area-w: calc(282 / 1920 * 100vw);
+            --footer-h: calc(118 / 1920 * 100vw);
+        }
+
+        html { scroll-behavior: smooth; }
+        body { background: #000; color: #fff; margin: 0; padding: 0; font-family: 'Poppins', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif; overflow-x: hidden; }
+
+        /* 中文统一：思源黑体 CN Light；网页端用同源型的 Noto Sans SC 300 加载 */
+        .text-cn {
+            font-family: 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-weight: 300;
+            font-style: normal;
+        }
+
+        /* --- 恢复原始导航栏样式 --- */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 104px;
+            padding: 0 var(--padding-x); 
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; z-index: 1000;
+        }
+
+        .logo-group { display: flex; align-items: center; gap: 12px; }
+        .site-logo-img { width: 64px; height: 64px; display: block; flex-shrink: 0; }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            line-height: 1;
+        }
+        .logo-main-text { 
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 22px;
+            font-weight: 400; /* Regular */
+            color: #fff;
+            line-height: 1;
+        }
+        
+        .logo-sub-text { 
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 12px;
+            font-weight: 200; /* Extra Light */
+            color: #888;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 32px; }
+        .nav-item { 
+            position: relative; font-size: 16px; color: #fff; 
+            cursor: pointer; text-transform: uppercase; padding: 2px 4px;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-weight: 300; /* Montserrat Light */
+        }
+        .nav-item.active {
+            font-weight: 500; /* Montserrat Medium */
+        }
+        .nav-item.active::before {
+            content: ""; position: absolute; bottom: 4px; left: 0; right: 0;
+            height: 8px; background: var(--cre-purple); z-index: -1;
+        }
+        .btn-contact {
+            background: var(--cre-purple); color: #fff; padding: 8px 24px;
+            border-radius: 4px; font-size: 14px; text-transform: uppercase;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-weight: 500; /* Montserrat Medium */
+            cursor: pointer;
+        }
+
+        .nav-social {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 32px;
+        }
+        .nav-social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: opacity 0.3s;
+        }
+        .nav-social-link:hover { opacity: 0.8; }
+        .nav-social-link svg { width: 24px; height: 24px; }
+
+        /* --- Hero Section --- */
+        .hero-wrap {
+            position: relative;
+            background: #000;
+            z-index: 3;
+        }
+
+        .hero {
+            width: 100%; height: 600px; background: #000;
+            padding: 104px var(--padding-x) 0;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative;
+            z-index: 0;
+        }
+
+        /* 悬浮 3D Logo：锚定在黑色区域底边，约 30% 落在下方浅色区块上（后续可替换为 Spline embed） */
+        .hero-float-logo {
+            position: absolute;
+            right: var(--padding-x);
+            bottom: 0;
+            width: clamp(200px, 24vw, 400px);
+            transform: translateY(30%);
+            z-index: 5;
+            pointer-events: none;
+        }
+        .hero-float-logo img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .hero-en {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif; font-style: italic;
+            font-size: 60px; line-height: 1.1; text-transform: uppercase;
+        }
+        .hero-en b { font-weight: 600; }
+        .slash { color: var(--cre-purple); font-style: normal; margin: 0 10px; }
+        .hero-cn {
+            font-size: 32px;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        /* 网页版：顶部黑色 Hero 区域高度固定 600px（不含固定顶栏；手机端见 max-width:480px 覆盖） */
+        @media (min-width: 481px) {
+            .hero-wrap {
+                min-height: 600px;
+            }
+            .hero {
+                height: 600px;
+                min-height: 600px;
+            }
+        }
+
+        /* --- Project Section --- */
+        #project-section {
+            background: #F8F8F8; color: #1A1A1A; 
+            min-height: 100vh; width: 100vw;
+            display: flex; align-items: center; position: relative;
+            z-index: 1;
+            /* 为右侧与 logo 重叠区域预留一点顶边空间，避免被裁切感过强 */
+            padding: 120px 0 100px;
+        }
+        .info-panel {
+            width: var(--text-area-w); margin-left: var(--padding-x);
+            margin-right: calc(40 / 1920 * 100vw); flex-shrink: 0;
+            order: 1;
+        }
+        
+        .project-title {
+            font-size: 32px;
+            font-weight: 400;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .project-tag {
+            background: var(--cre-purple);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .project-tag .project-tag-en {
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .project-tag .project-tag-cn {
+            font-weight: 300;
+        }
+        
+        .project-desc {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+        
+        .btn-view-project {
+            background: transparent;
+            color: var(--cre-purple);
+            padding: 0;
+            font-weight: 400;
+            font-size: 16px;
+            font-style: normal;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            text-transform: capitalize;
+            border: none;
+            margin-bottom: 16px;
+            text-decoration: none;
+        }
+        .btn-view-project:hover { opacity: 0.8; }
+
+        /* 桌面：左文案(order:1) + 右轮播(order:2)；手机端通过 order 改为上图下文 */
+        .project-slider-block {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            order: 2;
+        }
+
+        .project-dots {
+            display: none;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+            padding: 0 8px;
+        }
+        .project-dot {
+            flex: 1;
+            max-width: 72px;
+            height: 4px;
+            border: none;
+            border-radius: 2px;
+            padding: 0;
+            cursor: pointer;
+            background: #D8D8D8;
+            transition: background 0.3s;
+        }
+        .project-dot.is-active {
+            background: var(--cre-purple);
+        }
+
+        .slider-viewport { flex-grow: 1; height: var(--img-h); overflow: hidden; }
+        .project-container { display: flex; gap: 24px; align-items: center; }
+        .project-item {
+            height: var(--img-h); flex-shrink: 0; background: #E5E5E5;
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 24px; color: #999;
+        }
+        .st-active { width: calc(702 / 1920 * 100vw); background: #DCDCDC; color: var(--cre-purple); }
+        .st-r1 { width: calc(312 / 1920 * 100vw); }
+        .st-r2 { width: calc(206 / 1920 * 100vw); }
+        .st-next { width: calc(118 / 1920 * 100vw); }
+        .st-hide { width: 0; opacity: 0; margin-left: -24px; }
+
+        /* --- 瀑布流作品列表（接在轮播下方） --- */
+        #projects-waterfall {
+            background: #F8F8F8;
+            color: #1A1A1A;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 var(--padding-x) 100px;
+        }
+        .waterfall-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+        .waterfall-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: clamp(20px, 3vw, 40px);
+            margin-bottom: clamp(48px, 6vw, 72px);
+        }
+        .waterfall-item:last-child {
+            margin-bottom: 0;
+        }
+        .waterfall-thumb {
+            flex: 0 0 28%;
+            max-width: 300px;
+            aspect-ratio: 1 / 1;
+            background: #E5E5E5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: #999;
+        }
+        .waterfall-text {
+            flex: 1;
+            min-width: 0;
+            padding-top: 0;
+        }
+        .waterfall-title {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: clamp(22px, 2vw, 28px);
+            font-weight: 700;
+            margin: 0 0 8px;
+            line-height: 1.2;
+            color: #1A1A1A;
+        }
+        .waterfall-year {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: #555;
+            margin: 0 0 12px;
+        }
+        .waterfall-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: var(--cre-purple);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            margin-bottom: 12px;
+        }
+        .waterfall-tag .waterfall-tag-en {
+            text-transform: uppercase;
+        }
+        .waterfall-tag .waterfall-tag-cn {
+            font-weight: 300;
+        }
+        .waterfall-title-cn {
+            font-size: clamp(16px, 1.6vw, 20px);
+            font-weight: 300;
+            color: #1A1A1A;
+            margin: 0 0 10px;
+            line-height: 1.35;
+        }
+        .waterfall-desc-cn {
+            font-size: 14px;
+            line-height: 1.75;
+            color: #888;
+            margin: 10px 0 0;
+            max-width: 52em;
+        }
+        .waterfall-view-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            color: var(--cre-purple);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 300;
+        }
+        .waterfall-desc {
+            font-size: 14px;
+            line-height: 1.75;
+            color: #888;
+            margin: 0;
+            max-width: 52em;
+        }
+
+        /* --- 保持最新设计的底部栏 --- */
+        footer {
+            background: #000;
+            min-height: var(--footer-h);
+            padding: 20px var(--padding-x);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-info {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            color: #fff;
+            line-height: 1.5;
+            text-align: right;
+        }
+
+        .footer-heading {
+            font-size: 16px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .footer-email {
+            font-size: 16px;
+            font-weight: 400;
+            display: block;
+            margin-top: 8px;
+        }
+
+        .social-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .social-pill {
+            background: #2A2A2A;
+            border-radius: 50px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        .social-pill:hover { background: #3A3A3A; }
+        a.social-pill { text-decoration: none; color: inherit; }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .social-icon svg { width: 24px; height: 24px; }
+        .social-pill span {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        /* 移动端汉堡按钮：默认隐藏 */
+        .nav-burger-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .nav-burger-btn img { width: 24px; height: 24px; display: block; }
+
+        /* 全屏 Menu（黑色版） */
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            padding: 0 16px 40px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .mobile-menu.is-open {
+            display: flex;
+        }
+        @media (min-width: 481px) {
+            .mobile-menu {
+                display: none !important;
+            }
+        }
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+            padding: 0 4px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .mobile-menu-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .mobile-menu-close img { width: 24px; height: 24px; display: block; }
+        /* 中间整块：3 个 Tab + Contact + 两图标，垂直居中作为一组，避免 nav 单独 flex:1 把按钮挤乱 */
+        .mobile-menu-stack {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            min-height: 0;
+            width: 100%;
+            gap: 24px;
+            padding: 40px 0 24px;
+            box-sizing: border-box;
+        }
+        /* Contact 整块（含按钮上下留白）：总高 96px，内嵌按钮高 48px → 上下各 24px */
+        .mobile-menu-cta-wrap {
+            flex-shrink: 0;
+            width: 100%;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: stretch;
+            box-sizing: border-box;
+        }
+        /* 全屏菜单内的 nav：必须覆盖全局 nav{position:fixed}，否则会贴到视口顶端并挡住「Home」，且脱离 flex 流导致按钮与链接间距错乱 */
+        .mobile-menu .mobile-menu-body {
+            position: static !important;
+            inset: auto !important;
+            top: auto !important;
+            left: auto !important;
+            width: 100% !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+            z-index: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            gap: 0 !important;
+        }
+        .mobile-menu-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
+            flex: 0 0 auto;
+        }
+        /* 1x：每项导航链接占位高度 68px */
+        .mobile-menu-link {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 22px;
+            font-weight: 300;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            height: 68px;
+            min-height: 68px;
+            padding: 0 12px;
+            margin: 0;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mobile-menu-link .mobile-menu-label {
+            position: relative;
+            display: inline-block;
+            z-index: 1;
+        }
+        .mobile-menu-link.active .mobile-menu-label {
+            font-weight: 500; /* Montserrat Medium */
+        }
+        /* 选中态底条：高 8px，位于文字背后，左右各超出文字 8px */
+        .mobile-menu-link.active .mobile-menu-label::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            right: -8px;
+            bottom: 2px;
+            height: 8px;
+            background: var(--cre-purple);
+            z-index: -1;
+            pointer-events: none;
+        }
+        /* Contact 按钮本体：高 48px；外侧总高度见 .mobile-menu-cta-wrap（96px） */
+        .mobile-menu-stack .mobile-menu-cta {
+            flex-shrink: 0;
+            width: 100%;
+            margin: 0;
+            height: 48px;
+            min-height: 48px;
+            padding: 0 24px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cre-purple);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 14px;
+            font-weight: 500; /* Montserrat Medium */
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            text-align: center;
+        }
+        .mobile-menu-social {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 0;
+        }
+        /* 1x：Behance / Dribbble 图标区域 48×48 */
+        .mobile-menu-social .nav-social-link {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        .mobile-menu-social .nav-social-link svg {
+            width: 48px;
+            height: 48px;
+            display: block;
+        }
+
+        /* 手机端布局（设计参考宽度约 403px） */
+        @media (max-width: 480px) {
+
+            .contact-success-overlay {
+                align-items: flex-start;
+                padding: 286px 16px 24px;
+            }
+            .contact-success-wrap {
+                width: 100%;
+                gap: 14px;
+            }
+            .contact-success-card {
+                padding: 16px 14px 18px;
+            }
+            .contact-success-plane {
+                width: 145px;
+                top: -42px;
+                right: -8px;
+            }
+            .contact-success-title {
+                font-size: 52px;
+            }
+            .contact-success-cn-highlight {
+                margin-top: 6px;
+                font-size: 16px;
+                font-weight: 700;
+                padding: 3px 10px;
+            }
+            .contact-success-reply {
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.35;
+                margin-top: 10px;
+            }
+            .contact-success-confirm {
+                width: 100%;
+                min-width: 0;
+                font-size: 34px;
+            }
+
+
+            /* Contact 弹窗（手机）：留白、标题紫条贴近文案、发送按钮整行居中 */
+            .contact-modal-overlay {
+                align-items: flex-start;
+                padding: 282px 20px 24px;
+                box-sizing: border-box;
+            }
+            .contact-modal-panel {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .contact-modal-header {
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 18px;
+            }
+            .contact-modal-title {
+                flex: 0 1 auto;
+                width: fit-content;
+                max-width: calc(100% - 48px);
+                font-size: 28px;
+                gap: 6px;
+                flex-wrap: wrap;
+                line-height: 1.15;
+            }
+            .contact-modal-title::after {
+                left: 0;
+                right: 0;
+                bottom: 2px;
+                height: 9px;
+                border-radius: 2px;
+            }
+            .contact-modal-title em {
+                font-size: 15px;
+                line-height: 1.25;
+                white-space: normal;
+            }
+            .contact-modal-close {
+                font-size: 34px;
+                margin-left: 0;
+                flex-shrink: 0;
+                align-self: flex-start;
+            }
+            .contact-modal-body {
+                gap: 14px;
+            }
+            .contact-input,
+            .contact-textarea {
+                font-size: 15px;
+            }
+            .contact-input-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .contact-message-row {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .contact-textarea {
+                min-height: 120px;
+            }
+            .contact-send-btn {
+                width: 100%;
+                height: 48px;
+                margin-top: 0;
+                font-size: 18px;
+                font-weight: 500;
+                gap: 8px;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                padding: 0 16px;
+            }
+            .contact-send-btn.is-disabled { box-shadow: none; }
+            .contact-send-divider { display: inline; }
+            .contact-send-icon {
+                width: 22px;
+                height: 22px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 22px;
+            }
+            .contact-send-icon img {
+                width: 22px;
+                height: 22px;
+            }
+
+            :root {
+                --padding-x: 20px;
+            }
+
+            nav {
+                height: 72px;
+                padding: 0 20px;
+            }
+
+            .nav-right { display: none !important; }
+            .nav-burger-btn { display: flex; }
+            .site-logo-img { width: 40px; height: 40px; }
+            /* 手机端：logo 与旁侧文字间隔 4px */
+            nav .logo-group,
+            .mobile-menu-header .logo-group {
+                gap: 4px;
+            }
+            /* 手机顶栏 / 全屏 Menu：Cre-Vision 为 Montserrat 16px Medium */
+            nav .logo-main-text,
+            .mobile-menu-header .logo-main-text {
+                font-size: 16px;
+                font-weight: 500; /* Montserrat Medium */
+            }
+            /* 手机顶栏 / 全屏 Menu：UX&UI design 为 Montserrat Light 9px，字间距 17% */
+            nav .logo-sub-text,
+            .mobile-menu-header .logo-sub-text {
+                font-size: 9px;
+                font-weight: 300; /* Montserrat Light */
+                letter-spacing: 0.17em;
+            }
+
+            .hero {
+                height: auto;
+                min-height: 420px;
+                padding: 88px 20px 100px;
+            }
+            .hero-en {
+                font-size: clamp(22px, 6.2vw, 28px);
+                line-height: 1.15;
+            }
+            .hero-cn {
+                font-size: 15px;
+                margin-top: 16px;
+                line-height: 1.6;
+            }
+            .hero-float-logo {
+                width: clamp(140px, 42vw, 200px);
+                right: 12px;
+            }
+
+            #project-section {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 80px 20px 60px;
+                width: 100%;
+                max-width: 100vw;
+                box-sizing: border-box;
+                scroll-margin-top: 80px;
+            }
+            .info-panel {
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+                margin-bottom: 0;
+                margin-top: 24px;
+                order: 2;
+            }
+            .project-slider-block {
+                order: 1;
+                width: 100%;
+            }
+            .project-dots {
+                display: flex;
+            }
+            #p-title { font-size: 28px !important; }
+            #top { scroll-margin-top: 72px; }
+            .slider-viewport {
+                width: 100%;
+                flex-grow: 0;
+                overflow: hidden;
+                height: clamp(200px, 52vw, 280px);
+            }
+            .project-container {
+                gap: 12px;
+            }
+            .project-item {
+                font-size: 14px;
+                height: clamp(200px, 52vw, 280px);
+            }
+            .st-active { width: min(72vw, 290px); }
+            .st-r1 { width: min(28vw, 120px); }
+            .st-r2 { width: min(22vw, 88px); }
+            .st-next { width: min(16vw, 64px); }
+
+            footer {
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 24px;
+                padding: 32px 20px;
+            }
+            .footer-info {
+                text-align: left;
+            }
+            .social-btns {
+                width: 100%;
+            }
+            .social-pill {
+                width: 100%;
+                box-sizing: border-box;
+                min-width: unset;
+            }
+
+            #projects-waterfall {
+                padding: 48px 20px 60px;
+            }
+            .waterfall-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+                margin-bottom: 40px;
+            }
+            .waterfall-thumb {
+                flex: none;
+                width: 100%;
+                max-width: none;
+                aspect-ratio: 4 / 3;
+                min-height: 180px;
+            }
+            .waterfall-title {
+                font-size: 22px;
+            }
+        }
+    
+        .contact-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .contact-modal-overlay.is-open { display: flex; }
+        .contact-modal-panel {
+            width: min(760px, 100%);
+            color: #fff;
+        }
+        .contact-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .contact-modal-title {
+            margin: 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 50px;
+            font-style: italic;
+            font-weight: 600;
+            line-height: 1;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+        .contact-modal-title::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 8%;
+            bottom: 4px;
+            height: 26px;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            z-index: -1;
+        }
+        .contact-modal-title em {
+            font-size: 36px;
+            font-style: normal;
+            font-weight: 300;
+        }
+        .contact-modal-close {
+            border: none;
+            background: none;
+            color: #fff;
+            font-size: 36px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 18px;
+        }
+        .contact-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .contact-input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .contact-input,
+        .contact-textarea {
+            width: 100%;
+            border: none;
+            border-radius: 0;
+            background: #F3F3F3;
+            color: #212121;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+            padding: 12px 14px;
+            outline: none;
+        }
+        .contact-input::placeholder,
+        .contact-textarea::placeholder { color: #9A9A9A; }
+        .contact-message-row {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+        }
+        .contact-textarea {
+            min-height: 128px;
+            resize: none;
+        }
+        .contact-send-btn {
+            width: 190px;
+            border: none;
+            border-radius: 0;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            color: #fff;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px 16px;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease, transform 0.12s ease, filter 0.2s ease;
+        }
+        .contact-send-icon { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 30px; }
+        .contact-send-icon img { width: 30px; height: 30px; display: block; }
+        .contact-send-label-cn { white-space: nowrap; }
+        .contact-send-divider { display: none; }
+        .contact-send-btn.is-disabled {
+            background: linear-gradient(90deg, #D49AF6 0%, #C57FEB 100%);
+            color: rgba(255, 255, 255, 0.78);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .contact-send-btn.is-disabled .contact-send-icon,
+        .contact-send-btn.is-disabled .contact-send-label-en,
+        .contact-send-btn.is-disabled .contact-send-label-cn {
+            opacity: 0.85;
+        }
+        .contact-send-btn:not(.is-disabled):active {
+            transform: translateY(1px);
+            filter: brightness(0.95);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .contact-send-btn:not(.is-disabled):hover {
+                box-shadow: 0 10px 22px rgba(182, 63, 255, 0.48);
+            }
+        }
+
+        /* 手机 Contact：邮箱/电话上下排；发送按钮与弹窗同宽；图标与文字横向（覆盖上方桌面样式） */
+        @media (max-width: 480px) {
+            .contact-modal-body .contact-input-row {
+                display: flex;
+                flex-direction: column;
+                grid-template-columns: none;
+                gap: 10px;
+            }
+            .contact-modal-body .contact-message-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .contact-modal-body .contact-textarea {
+                min-height: 120px;
+            }
+            .contact-modal-body .contact-send-btn {
+                width: 100%;
+                max-width: none;
+                box-sizing: border-box;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+
+    
+        .contact-success-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .contact-success-overlay.is-open { display: flex; }
+        .contact-success-wrap {
+            width: min(540px, 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .contact-success-card {
+            width: 100%;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            padding: 18px 18px 20px;
+            position: relative;
+            color: #fff;
+        }
+        .contact-success-plane {
+            position: absolute;
+            width: 180px;
+            height: auto;
+            right: -10px;
+            top: -44px;
+            pointer-events: none;
+        }
+        .contact-success-title {
+            margin: 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 54px;
+            line-height: 0.95;
+            font-style: italic;
+            font-weight: 600;
+            color: #fff;
+        }
+        .contact-success-cn-highlight {
+            display: inline-block;
+            margin-top: 8px;
+            background: #f3f3f3;
+            color: #A73FFF;
+            padding: 4px 12px;
+            font-family: 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .contact-success-reply {
+            margin: 12px 0 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.45;
+            color: #fff;
+        }
+        .contact-success-confirm {
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            color: #fff;
+            height: 48px;
+            min-width: 168px;
+            padding: 0 24px;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 26px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-group">
+            <img src="Design/logo_2.svg" alt="Cre-Vision logo" class="site-logo-img" width="64" height="64">
+            <div class="logo-text flex flex-col">
+                <span class="logo-main-text">Cre-Vision</span>
+                <span class="logo-sub-text">UX&UI design</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="nav-item active">Home</div>
+            <a href="projects.html" class="nav-item">Projects</a>
+            <a href="about.html" class="nav-item">About</a>
+            <button class="btn-contact">Contact</button>
+            <div class="nav-social">
+                <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Behance">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                        <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                    </svg>
+                </a>
+                <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Dribbble">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_dribbble_nav)">
+                            <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_dribbble_nav">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <button type="button" class="nav-burger-btn" id="nav-burger-open" aria-label="打开菜单" aria-expanded="false" aria-controls="mobile-menu">
+            <img src="Design/icn_Menu_Cravision.svg" alt="" width="24" height="24">
+        </button>
+    </nav>
+
+    <!-- 全屏黑色 Menu（手机端） -->
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-header">
+            <div class="logo-group">
+                <img src="Design/logo_2.svg" alt="Cre-Vision logo" class="site-logo-img" width="64" height="64">
+                <div class="logo-text flex flex-col">
+                    <span class="logo-main-text">Cre-Vision</span>
+                    <span class="logo-sub-text">UX&UI design</span>
+                </div>
+            </div>
+            <button type="button" class="mobile-menu-close" id="mobile-menu-close" aria-label="关闭菜单">
+                <img src="Design/icn_Menu_CravisionClose.svg" alt="" width="24" height="24">
+            </button>
+        </div>
+        <div class="mobile-menu-stack">
+            <nav class="mobile-menu-body" aria-label="主导航">
+                <a href="#top" class="mobile-menu-link active"><span class="mobile-menu-label">Home</span></a>
+                <a href="projects.html" class="mobile-menu-link"><span class="mobile-menu-label">Projects</span></a>
+                <a href="about.html" class="mobile-menu-link mobile-menu-about"><span class="mobile-menu-label">About</span></a>
+            </nav>
+            <div class="mobile-menu-cta-wrap">
+                <button type="button" class="mobile-menu-cta" id="mobile-menu-contact">Contact</button>
+            </div>
+            <div class="mobile-menu-social">
+            <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Behance">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                    <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                </svg>
+            </a>
+            <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Dribbble">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_menu_dribbble)">
+                        <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_menu_dribbble">
+                            <rect width="24" height="24" fill="white"/>
+                        </clipPath>
+                    </defs>
+                </svg>
+            </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-wrap" id="top">
+        <header class="hero">
+            <h1 class="hero-en">WE <br><b>PLAN</b> <span class="slash">/</span> <b>DESIGN</b> <span class="slash">/</span> <b>IMPLEMENT</b><br>THOUGHTFUL, HUMAN-CENTRIC USER EXPERIENCES</h1>
+            <p class="hero-cn text-cn">我们致力于设计并实现「懂用户、有温度」的专属体验</p>
+        </header>
+        <!-- 当前使用 SVG；替换 Spline 时可将下方 img 换成 iframe / spline-viewer -->
+        <div class="hero-float-logo" id="hero-3d-logo" aria-hidden="true">
+            <img src="Design/3dlogo.svg" alt="" width="384" height="355">
+        </div>
+    </div>
+
+    <section id="project-section">
+        <div class="info-panel">
+            <h2 id="p-title" class="text-[3vw] font-black italic uppercase leading-[0.85] mb-1 mt-0">Project 1</h2>
+            <p id="p-title-cn" class="text-cn text-[#1A1A1A] text-[clamp(18px,2vw,24px)] leading-snug mb-4 mt-0">项目1标题</p>
+            <div class="project-tag">
+                <span class="project-tag-en">Website Design</span>
+                <span aria-hidden="true">|</span>
+                <span class="project-tag-cn text-cn">网页设计</span>
+            </div>
+            <p class="text-zinc-500 text-[13px] leading-relaxed mb-3 mt-0">Project Short Description : Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p class="text-cn text-[13px] text-[#666] leading-relaxed mb-6 mt-0">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+            <a href="project-detail.html" class="btn-view-project">View Project <span class="opacity-80" aria-hidden="true">|</span> <span class="text-cn">查看作品</span> <span>→</span></a>
+        </div>
+        <div class="project-slider-block">
+            <div class="slider-viewport">
+                <div class="project-container" id="rail"></div>
+            </div>
+            <div class="project-dots" id="project-dots" role="tablist" aria-label="作品轮播"></div>
+        </div>
+    </section>
+
+    <section id="projects-waterfall" class="projects-waterfall" aria-label="更多作品">
+        <div class="waterfall-inner">
+            <article class="waterfall-item">
+                <div class="waterfall-thumb">Project 5 Pic</div>
+                <div class="waterfall-text">
+                    <h3 class="waterfall-title">Project 5 Title</h3>
+                    <p class="waterfall-title-cn text-cn">项目5标题</p>
+                    <p class="waterfall-year">2023</p>
+                    <span class="waterfall-tag"><span class="waterfall-tag-en">Website Design</span><span aria-hidden="true">|</span><span class="waterfall-tag-cn text-cn">网页设计</span></span>
+                    <p class="waterfall-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p class="waterfall-desc-cn text-cn">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+                    <a href="project-detail.html" class="waterfall-view-link">View <span>→</span></a>
+                </div>
+            </article>
+            <article class="waterfall-item">
+                <div class="waterfall-thumb">Project 6 Pic</div>
+                <div class="waterfall-text">
+                    <h3 class="waterfall-title">Project 6 Title</h3>
+                    <p class="waterfall-title-cn text-cn">项目6标题</p>
+                    <p class="waterfall-year">2023</p>
+                    <span class="waterfall-tag"><span class="waterfall-tag-en">Website Design</span><span aria-hidden="true">|</span><span class="waterfall-tag-cn text-cn">网页设计</span></span>
+                    <p class="waterfall-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p class="waterfall-desc-cn text-cn">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+                    <a href="project-detail.html" class="waterfall-view-link">View <span>→</span></a>
+                </div>
+            </article>
+            <article class="waterfall-item">
+                <div class="waterfall-thumb">Project 7 Pic</div>
+                <div class="waterfall-text">
+                    <h3 class="waterfall-title">Project 7 Title</h3>
+                    <p class="waterfall-title-cn text-cn">项目7标题</p>
+                    <p class="waterfall-year">2022</p>
+                    <span class="waterfall-tag"><span class="waterfall-tag-en">Website Design</span><span aria-hidden="true">|</span><span class="waterfall-tag-cn text-cn">网页设计</span></span>
+                    <p class="waterfall-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p class="waterfall-desc-cn text-cn">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+                    <a href="project-detail.html" class="waterfall-view-link">View <span>→</span></a>
+                </div>
+            </article>
+            <article class="waterfall-item">
+                <div class="waterfall-thumb">Project 8 Pic</div>
+                <div class="waterfall-text">
+                    <h3 class="waterfall-title">Project 8 Title</h3>
+                    <p class="waterfall-title-cn text-cn">项目8标题</p>
+                    <p class="waterfall-year">2021</p>
+                    <span class="waterfall-tag"><span class="waterfall-tag-en">Website Design</span><span aria-hidden="true">|</span><span class="waterfall-tag-cn text-cn">网页设计</span></span>
+                    <p class="waterfall-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p class="waterfall-desc-cn text-cn">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+                    <a href="project-detail.html" class="waterfall-view-link">View <span>→</span></a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-info">
+            <span class="footer-heading">Contact Us</span>
+            <span class="footer-email">Email us : @crevition.com</span>
+        </div>
+        <div class="social-btns">
+            <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="social-pill">
+                <div class="social-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                        <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                    </svg>
+                </div>
+                <span>Behance</span>
+            </a>
+            <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="social-pill">
+                <div class="social-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_dribbble)">
+                            <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_dribbble">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </div>
+                <span>Dribbble</span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const rail = document.getElementById('rail');
+        const projectDots = document.getElementById('project-dots');
+        const total = 4;
+        let slideIndex = 0;
+        let isMoving = false;
+
+        function buildDots() {
+            if (!projectDots) return;
+            projectDots.innerHTML = '';
+            for (let k = 0; k < total; k++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'project-dot' + (k === 0 ? ' is-active' : '');
+                btn.setAttribute('aria-label', '作品 ' + (k + 1));
+                btn.addEventListener('click', function () {
+                    moveTo(k);
+                });
+                projectDots.appendChild(btn);
+            }
+        }
+
+        function build() {
+            rail.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const div = document.createElement('div');
+                div.className = 'project-item';
+                div.innerText = `P${(i % total) + 1}`;
+                div.onclick = function (idx) {
+                    return function () {
+                        if (!isMoving) moveTo(idx % total);
+                    };
+                }(i);
+                rail.appendChild(div);
+            }
+            buildDots();
+            refresh();
+        }
+
+        function refresh() {
+            const items = document.querySelectorAll('.project-item');
+            items.forEach(function (item, i) {
+                item.className = 'project-item';
+                const rel = i - slideIndex;
+                if (rel === 0) item.classList.add('st-active');
+                else if (rel === 1) item.classList.add('st-r1');
+                else if (rel === 2) item.classList.add('st-r2');
+                else if (rel === 3) item.classList.add('st-next');
+                else item.classList.add('st-hide');
+            });
+            document.getElementById('p-title').innerText = 'Project ' + (slideIndex + 1);
+            var titleCn = document.getElementById('p-title-cn');
+            if (titleCn) titleCn.textContent = '项目' + (slideIndex + 1) + '标题';
+            if (projectDots) {
+                projectDots.querySelectorAll('.project-dot').forEach(function (dot, k) {
+                    dot.classList.toggle('is-active', k === slideIndex);
+                });
+            }
+        }
+
+        function moveTo(next) {
+            if (next < 0 || next >= total) return;
+            isMoving = true;
+            slideIndex = next;
+            refresh();
+            setTimeout(function () {
+                isMoving = false;
+            }, 800);
+        }
+
+        window.addEventListener('wheel', function (e) {
+            const sect = document.getElementById('project-section');
+            const rect = sect.getBoundingClientRect();
+            if (rect.top < 150 && rect.bottom > 0) {
+                if (isMoving) return;
+                if (e.deltaY > 0) moveTo((slideIndex + 1) % total);
+                else moveTo((slideIndex - 1 + total) % total);
+            }
+        }, { passive: true });
+
+        /* 手机端项目轮播手势：横向滑动切换，纵向滚动保持页面原行为 */
+        (function () {
+            const viewport = document.querySelector('.slider-viewport');
+            if (!viewport) return;
+
+            let startX = 0;
+            let startY = 0;
+            let deltaX = 0;
+            let deltaY = 0;
+            let tracking = false;
+            let lockAxis = '';
+            const SWIPE_THRESHOLD = 36;
+
+            viewport.addEventListener('touchstart', function (e) {
+                if (!e.touches || e.touches.length !== 1) return;
+                const t = e.touches[0];
+                startX = t.clientX;
+                startY = t.clientY;
+                deltaX = 0;
+                deltaY = 0;
+                lockAxis = '';
+                tracking = true;
+            }, { passive: true });
+
+            viewport.addEventListener('touchmove', function (e) {
+                if (!tracking || !e.touches || e.touches.length !== 1) return;
+                const t = e.touches[0];
+                deltaX = t.clientX - startX;
+                deltaY = t.clientY - startY;
+
+                if (!lockAxis) {
+                    lockAxis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y';
+                }
+                if (lockAxis === 'x') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            viewport.addEventListener('touchend', function () {
+                if (!tracking) return;
+                tracking = false;
+
+                if (lockAxis !== 'x' || isMoving) return;
+                if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+
+                if (deltaX < 0) {
+                    moveTo((slideIndex + 1) % total);
+                } else {
+                    moveTo((slideIndex - 1 + total) % total);
+                }
+            }, { passive: true });
+
+            viewport.addEventListener('touchcancel', function () {
+                tracking = false;
+                lockAxis = '';
+            }, { passive: true });
+        })();
+
+        /* 手机端项目轮播自动播放：每 3 秒切换到下一项 */
+        (function () {
+            const mobileViewport = window.matchMedia('(max-width: 480px)');
+            let autoTimer = null;
+
+            function clearAutoPlay() {
+                if (autoTimer) {
+                    clearInterval(autoTimer);
+                    autoTimer = null;
+                }
+            }
+
+            function startAutoPlay() {
+                clearAutoPlay();
+                if (!mobileViewport.matches) return;
+                autoTimer = setInterval(function () {
+                    if (document.hidden || isMoving) return;
+                    moveTo((slideIndex + 1) % total);
+                }, 3000);
+            }
+
+            if (typeof mobileViewport.addEventListener === 'function') {
+                mobileViewport.addEventListener('change', function () {
+                    startAutoPlay();
+                });
+            } else if (typeof mobileViewport.addListener === 'function') {
+                mobileViewport.addListener(function () {
+                    startAutoPlay();
+                });
+            }
+
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) clearAutoPlay();
+                else startAutoPlay();
+            });
+
+            startAutoPlay();
+        })();
+
+        build();
+
+        /* 手机端全屏菜单开关 */
+        (function () {
+            const menu = document.getElementById('mobile-menu');
+            const burger = document.getElementById('nav-burger-open');
+            const closeBtn = document.getElementById('mobile-menu-close');
+            const contactBtn = document.getElementById('mobile-menu-contact');
+            const mobileViewport = window.matchMedia('(max-width: 480px)');
+
+            function openMenu() {
+                if (!mobileViewport.matches) return;
+                menu.classList.add('is-open');
+                menu.setAttribute('aria-hidden', 'false');
+                if (burger) burger.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                menu.classList.remove('is-open');
+                menu.setAttribute('aria-hidden', 'true');
+                if (burger) burger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            if (burger) burger.addEventListener('click', openMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+
+            menu.querySelectorAll('.mobile-menu-link').forEach(function (a) {
+                a.addEventListener('click', function () {
+                    closeMenu();
+                });
+            });
+
+            if (contactBtn) {
+                contactBtn.addEventListener('click', function () {
+                    closeMenu();
+                    if (typeof window.openContactModal === 'function') window.openContactModal();
+                });
+            }
+
+            function handleViewportChange() {
+                if (!mobileViewport.matches && menu.classList.contains('is-open')) {
+                    closeMenu();
+                }
+            }
+            if (typeof mobileViewport.addEventListener === 'function') {
+                mobileViewport.addEventListener('change', handleViewportChange);
+            } else if (typeof mobileViewport.addListener === 'function') {
+                mobileViewport.addListener(handleViewportChange);
+            }
+            window.addEventListener('resize', handleViewportChange);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && menu.classList.contains('is-open')) closeMenu();
+            });
+        })();
+    </script>
+
+    <div class="contact-modal-overlay" id="contact-modal" aria-hidden="true">
+        <div class="contact-modal-panel" role="dialog" aria-modal="true" aria-label="Contact Us">
+            <div class="contact-modal-header">
+                <h2 class="contact-modal-title">Contact Us <em class="text-cn">| 联系我们</em></h2>
+                <button type="button" class="contact-modal-close" id="contact-modal-close" aria-label="关闭弹窗">×</button>
+            </div>
+            <div class="contact-modal-body">
+                <div class="contact-input-row">
+                    <input class="contact-input" type="email" placeholder="Your Email Address">
+                    <input class="contact-input" type="tel" name="phone" placeholder="Your phone number  (Optional)">
+                </div>
+                <div class="contact-message-row">
+                    <textarea class="contact-textarea" placeholder="Please tell us your project or questions"></textarea>
+                    <button type="button" class="contact-send-btn is-disabled"><span class="contact-send-icon"><img src="Design/icn_email.svg" alt="" width="30" height="30"></span><span class="contact-send-label-en">Send</span><span class="contact-send-divider" aria-hidden="true">｜</span><span class="contact-send-label-cn text-cn">发送邮件</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        (function () {
+            const modal = document.getElementById('contact-modal');
+            const closeBtn = document.getElementById('contact-modal-close');
+            if (!modal || !closeBtn) return;
+
+            function openContactModal() {
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeContactModal() {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+            window.openContactModal = openContactModal;
+
+            document.querySelectorAll('.btn-contact, #mobile-menu-contact, .about-contact-cta').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    openContactModal();
+                });
+            });
+            closeBtn.addEventListener('click', closeContactModal);
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeContactModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeContactModal();
+            });
+        })();
+    </script>
+
+
+    <div class="contact-success-overlay" id="contact-success-modal" aria-hidden="true">
+        <div class="contact-success-wrap" role="dialog" aria-modal="true" aria-label="Message Sent">
+            <div class="contact-success-card">
+                <img src="Design/Paper_airplane.svg?v=20260420" alt="" class="contact-success-plane" width="180" height="126">
+                <h3 class="contact-success-title">Message<br>Sent,<br>Thank You !</h3>
+                <div class="contact-success-cn-highlight text-cn">消息已发出，谢谢!</div>
+                <p class="contact-success-reply">We Will Reply In 24 Hours ｜<br><span class="text-cn">我們將在24小時內與您聯繫</span></p>
+            </div>
+            <button type="button" class="contact-success-confirm">Got It ｜ <span class="text-cn">收到</span></button>
+        </div>
+    </div>
+
+
+    <script>
+        (function () {
+            const formModal = document.getElementById('contact-modal');
+            const successModal = document.getElementById('contact-success-modal');
+            const successConfirmBtn = document.querySelector('.contact-success-confirm');
+            if (!formModal || !successModal || !successConfirmBtn) return;
+
+            function openSuccessModal() {
+                successModal.classList.add('is-open');
+                successModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSuccessModal() {
+                successModal.classList.remove('is-open');
+                successModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            const sendButtons = formModal.querySelectorAll('.contact-send-btn');
+            const emailInput = formModal.querySelector('input[type="email"]');
+            const messageInput = formModal.querySelector('.contact-textarea');
+
+            function hasRequiredFields() {
+                const hasEmail = emailInput && emailInput.value.trim().length > 0;
+                const hasMessage = messageInput && messageInput.value.trim().length > 0;
+                return hasEmail && hasMessage;
+            }
+
+            function syncSendButtonState() {
+                const enabled = hasRequiredFields();
+                sendButtons.forEach(function (btn) {
+                    btn.classList.toggle('is-disabled', !enabled);
+                    btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+                });
+            }
+
+            if (emailInput) emailInput.addEventListener('input', syncSendButtonState);
+            if (messageInput) messageInput.addEventListener('input', syncSendButtonState);
+            syncSendButtonState();
+
+            sendButtons.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (!hasRequiredFields()) {
+                        syncSendButtonState();
+                        return;
+                    }
+
+                    formModal.classList.remove('is-open');
+                    formModal.setAttribute('aria-hidden', 'true');
+                    openSuccessModal();
+                });
+            });
+
+            successConfirmBtn.addEventListener('click', closeSuccessModal);
+            successModal.addEventListener('click', function (e) {
+                if (e.target === successModal) closeSuccessModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && successModal.classList.contains('is-open')) {
+                    closeSuccessModal();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
