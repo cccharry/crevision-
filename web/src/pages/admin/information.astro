@@ -82,6 +82,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 </style>
 
 <script>
+  import { bootAdminApp } from '../../scripts/admin-guard.ts';
   import { loadWhoWeAre, saveWhoWeAre } from '../../scripts/admin-who-we-are.ts';
 
   const taEn = document.getElementById('wwa-en') as HTMLTextAreaElement | null;
@@ -93,12 +94,16 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (taZh) taZh.value = zh;
   }
 
-  fill();
+  void (async () => {
+    const mode = await bootAdminApp();
+    if (mode === 'redirecting') return;
+    fill();
+  })();
 
   document.getElementById('wwa-save')?.addEventListener('click', () => {
     if (!taEn || !taZh) return;
     saveWhoWeAre({ en: taEn.value, zh: taZh.value });
-    alert('已保存到本地（接入 Sanity 后将写入站点配置）');
+    alert('已保存（若已配置 Cloudflare KV，将同步到线上）');
   });
 
   document.getElementById('wwa-cancel')?.addEventListener('click', () => {

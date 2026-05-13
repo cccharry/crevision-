@@ -13,3 +13,12 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </p>
   </section>
 </AdminLayout>
+
+<script>
+  import { bootAdminApp } from '../../scripts/admin-guard.ts';
+
+  void (async () => {
+    const m = await bootAdminApp();
+    if (m === 'redirecting') return;
+  })();
+</script>

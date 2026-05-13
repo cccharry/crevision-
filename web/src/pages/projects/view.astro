@@ -1,0 +1,90 @@
+---
+/** 案例详情（纯静态 + 客户端从 KV 拉取），URL：/projects/view?slug=xxx */
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project · Cre-Vision</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 42rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      .warn {
+        background: #fff3cd;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+      }
+      .hero {
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #e5e7eb;
+      }
+      pre {
+        white-space: pre-wrap;
+        background: #f6f6f6;
+        padding: 1rem;
+        font-size: 12px;
+        border-radius: 6px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <p><a href="/projects">← 返回列表</a></p>
+    <div id="root">
+      <p class="warn">加载中…</p>
+    </div>
+
+    <script>
+      import { fetchPublicProjects, projectTitle, type PublicProject } from '../../scripts/public-cms-projects.ts';
+
+      const root = document.getElementById('root');
+      const slug = new URLSearchParams(window.location.search).get('slug')?.trim();
+
+      function esc(s: string): string {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      void (async () => {
+        if (!root) return;
+        if (!slug) {
+          root.innerHTML = '<p class="warn">缺少参数 <code>slug</code>。</p>';
+          return;
+        }
+        const { projects } = await fetchPublicProjects();
+        const p = projects.find((x: PublicProject) => (x.slug || '').trim() === slug);
+        if (!p) {
+          root.innerHTML = `<p class="warn">未找到 slug 为 <strong>${esc(slug)}</strong> 的案例，或尚未在后台勾选「Projects Page」展示。</p>`;
+          return;
+        }
+        const t = projectTitle(p);
+        document.title = `${t} · Cre-Vision`;
+        const hero = p.heroImageDataUrl
+          ? `<img class="hero" src="${esc(String(p.heroImageDataUrl))}" alt="" />`
+          : '';
+        const introZh = p.introduction?.zh || '';
+        const introEn = p.introduction?.en || '';
+        root.innerHTML = `
+          ${hero}
+          <h1 style="margin-top:1rem">${esc(t)}</h1>
+          <p style="color:#6b7280;margin:0 0 1rem">${esc(String(p.year || ''))}</p>
+          ${introZh ? `<p><strong>CN</strong><br/>${esc(introZh)}</p>` : ''}
+          ${introEn ? `<p><strong>EN</strong><br/>${esc(introEn)}</p>` : ''}
+          <details style="margin-top:1.5rem">
+            <summary>原始数据（调试）</summary>
+            <pre>${esc(JSON.stringify(p, null, 2))}</pre>
+          </details>`;
+      })();
+    </script>
+  </body>
+</html>

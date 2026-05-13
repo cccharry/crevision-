@@ -293,11 +293,13 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 </style>
 
 <script>
+  import { bootAdminApp } from '../../../scripts/admin-guard.ts';
   import {
     loadAllDrafts,
     upsertDraft,
     createDraftFromModal,
     touchDraft,
+    saveAllDrafts,
     type AdminProjectDraft,
   } from '../../../scripts/admin-project-draft.ts';
 
@@ -415,10 +417,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     wrap.querySelector(`[data-remove]`)?.addEventListener('click', () => {
       if (!confirm('Remove this project from local drafts?')) return;
       const next = loadAllDrafts().filter((x) => x.id !== p.id);
-      localStorage.setItem(
-        'crevision:admin:projects',
-        JSON.stringify(next)
-      );
+      saveAllDrafts(next);
       render();
     });
 
@@ -482,5 +481,9 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     window.location.href = `/admin/projects/detail?id=${encodeURIComponent(draft.id)}`;
   });
 
-  render();
+  void (async () => {
+    const mode = await bootAdminApp();
+    if (mode === 'redirecting') return;
+    render();
+  })();
 </script>

@@ -32,4 +32,5 @@ export function loadWhoWeAre(): WhoWeAreCopy {
 
 export function saveWhoWeAre(data: WhoWeAreCopy): void {
   localStorage.setItem(WHO_WE_ARE_STORAGE_KEY, JSON.stringify(data));
+  void import('./admin-cms-push.js').then((m) => m.schedulePushToRemote()).catch(() => {});
 }

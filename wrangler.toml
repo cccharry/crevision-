@@ -1,0 +1,8 @@
+# 仓库根：Pages Functions 位于 ./functions（与 web/ 同级）
+# Cloudflare Pages 请将「构建根目录」设为仓库根，例如：
+#   构建命令：cd web && npm ci && npm run build
+#   输出目录：web/dist
+# KV / ADMIN_PASSWORD 等在控制台绑定，勿写入仓库。
+name = "crevision"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "web/dist"

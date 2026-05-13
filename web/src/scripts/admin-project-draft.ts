@@ -131,6 +131,7 @@ export function loadAllDrafts(): AdminProjectDraft[] {
 
 export function saveAllDrafts(list: AdminProjectDraft[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  void import('./admin-cms-push.js').then((m) => m.schedulePushToRemote()).catch(() => {});
 }
 
 export function getDraftById(id: string): AdminProjectDraft | undefined {

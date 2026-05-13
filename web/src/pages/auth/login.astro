@@ -70,8 +70,34 @@ import AuthLayout from '../../layouts/AuthLayout.astro';
 
   const form = document.getElementById('login-form');
   initPasswordVisibilityToggles(document);
-  // 占位：接入后端鉴权前拦截提交
-  form?.addEventListener('submit', (e) => {
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const password = (document.getElementById('password') as HTMLInputElement)?.value ?? '';
+    if (!password) {
+      alert('请输入密码');
+      return;
+    }
+    const email = (document.getElementById('email') as HTMLInputElement)?.value?.trim() || '';
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      let msg = '登录失败';
+      try {
+        const j = (await res.json()) as { error?: string };
+        if (j.error) msg = j.error;
+      } catch {
+        /* ignore */
+      }
+      alert(msg);
+      return;
+    }
+    const u = new URL(window.location.href);
+    const next = u.searchParams.get('next') || '/admin/projects';
+    window.location.href = next;
   });
 </script>

@@ -508,7 +508,7 @@ export function bootAdminProjectDetail(): void {
   $('#btn-save')?.addEventListener('click', () => {
     if (!draft) return;
     saveQuiet();
-    alert('已保存到浏览器本地草稿（接入 Sanity 后将同步云端）');
+    alert('已保存（若已配置 Cloudflare KV，将自动同步到线上）');
   });
 
   $('#btn-remove-project')?.addEventListener('click', () => {

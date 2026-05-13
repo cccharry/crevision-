@@ -1,18 +1,5 @@
 ---
-import { projectsListQuery } from '../../sanity/queries';
-import { getSanityClient } from '../../lib/sanity';
-
-const client = getSanityClient();
-let projects: unknown[] = [];
-let cmsReady = Boolean(client);
-
-if (client) {
-  try {
-    projects = await client.fetch(projectsListQuery);
-  } catch {
-    cmsReady = false;
-  }
-}
+/** 作品集列表：纯静态页 + 客户端从 /api/cms/public 拉取（Cloudflare KV） */
 ---
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -21,31 +8,82 @@ if (client) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projects · Cre-Vision</title>
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
-      .warn { background: #fff3cd; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
-      ul { padding-left: 1.2rem; }
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 48rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      .warn {
+        background: #fff3cd;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+      }
+      ul {
+        padding-left: 1.2rem;
+      }
+      .thumb {
+        width: 120px;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+        border-radius: 6px;
+        background: #e5e7eb;
+        vertical-align: middle;
+        margin-right: 12px;
+      }
+      li {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
     </style>
   </head>
   <body>
-    <h1>Projects（Sanity 数据源）</h1>
-    {!cmsReady && (
-      <div class="warn">
-        未配置 <code>SANITY_PROJECT_ID</code> 或拉取失败。请在 <code>web/.env</code> 中配置后运行{' '}
-        <code>npm run dev</code>。
-      </div>
-    )}
-    {cmsReady && projects.length === 0 && (
-      <p>暂无案例：请在 Sanity Studio 创建 <strong>project</strong> 文档并发布。</p>
-    )}
-    {projects.length > 0 && (
-      <ul>
-        {projects.map((p: any) => (
-          <li>
-            <a href={`/projects/${p.slug}`}>{p.title?.zh || p.title?.en || p.slug}</a>
-          </li>
-        ))}
-      </ul>
-    )}
-    <p><a href="/">返回新版首页</a> · <a href="../projects.html">旧版 Projects 页面</a></p>
+    <h1>Projects</h1>
+    <div id="root">
+      <p>加载中…</p>
+    </div>
+    <p style="margin-top: 1.5rem">
+      <a href="/">返回首页</a>
+    </p>
+
+    <script>
+      import { fetchPublicProjects, projectTitle, type PublicProject } from '../../scripts/public-cms-projects.ts';
+
+      const root = document.getElementById('root');
+
+      function esc(s: string): string {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      void (async () => {
+        if (!root) return;
+        const { projects, updatedAt } = await fetchPublicProjects();
+        if (projects.length === 0) {
+          root.innerHTML = `<div class="warn">
+            暂无在「Projects Page」展示的案例。请在管理后台 <a href="/admin/projects">/admin/projects</a> 编辑项目并勾选展示，且需已配置 Cloudflare KV 与 Pages Functions。
+          </div>
+          <p style="color:#6b7280;font-size:0.875rem">数据更新时间：${esc(updatedAt || '—')}</p>`;
+          return;
+        }
+        const items = projects
+          .map((p: PublicProject) => {
+            const slug = String(p.slug || '').trim();
+            const href = `/projects/view?slug=${encodeURIComponent(slug)}`;
+            const thumb = p.heroImageDataUrl
+              ? `<img class="thumb" src="${esc(String(p.heroImageDataUrl))}" alt="" />`
+              : `<span class="thumb"></span>`;
+            return `<li>${thumb}<a href="${href}">${esc(projectTitle(p))}</a></li>`;
+          })
+          .join('');
+        root.innerHTML = `<ul>${items}</ul><p style="color:#6b7280;font-size:0.875rem">数据更新时间：${esc(
+          updatedAt || '—'
+        )}</p>`;
+      })();
+    </script>
   </body>
 </html>

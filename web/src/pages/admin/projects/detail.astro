@@ -317,6 +317,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 
 <script>
   import { bootAdminProjectDetail } from '../../../scripts/admin-project-detail.ts';
+  import { bootAdminApp } from '../../../scripts/admin-guard.ts';
 
   const yearSel = document.getElementById('f-year') as HTMLSelectElement | null;
   const y0 = new Date().getFullYear();
@@ -329,5 +330,9 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     }
   }
 
-  bootAdminProjectDetail();
+  void (async () => {
+    const mode = await bootAdminApp();
+    if (mode === 'redirecting') return;
+    bootAdminProjectDetail();
+  })();
 </script>
