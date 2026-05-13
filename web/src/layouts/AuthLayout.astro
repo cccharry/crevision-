@@ -1,0 +1,331 @@
+---
+/**
+ * 后台登录 / 找回密码 / 重置密码 共用布局（Inter、浅灰底、白卡片）
+ */
+interface Props {
+  title: string;
+  variant?: 'login' | 'forgot' | 'reset';
+  /** 未传时：reset 页 Logo 居中，其余与卡片左对齐 */
+  logoAlign?: 'left' | 'center';
+}
+
+const { title, variant = 'login', logoAlign: logoAlignProp } = Astro.props;
+const logoAlign = logoAlignProp ?? (variant === 'reset' ? 'center' : 'left');
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · Cre-Vision Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style is:global>
+      :root {
+        --auth-bg: #f9fafb;
+        --auth-card: #ffffff;
+        --auth-text: #111827;
+        --auth-muted: #6b7280;
+        --auth-border: #e5e7eb;
+        --auth-purple: #B63FFF;
+        --auth-purple-hover: #a435e8;
+        --auth-radius: 6px;
+        --auth-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        /* 三页统一：Logo 底边与卡片顶边的间距 */
+        --auth-logo-gap: 28px;
+        /* 三页统一：输入框行高（与按钮主行动作一致为 48px） */
+        --auth-input-height: 48px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--auth-bg);
+        color: var(--auth-text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .auth-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px 40px;
+      }
+
+      .auth-stack {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+
+      .auth-stack--logo-center .auth-logo {
+        align-self: center;
+      }
+
+      .auth-stack--logo-center .auth-logo img {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .auth-logo {
+        display: block;
+        margin-bottom: var(--auth-logo-gap);
+        align-self: flex-start;
+      }
+
+      .auth-logo img {
+        height: 48px;
+        width: auto;
+        display: block;
+      }
+
+      .auth-card {
+        width: 100%;
+        background: var(--auth-card);
+        border: 1px solid var(--auth-border);
+        border-radius: var(--auth-radius);
+        box-shadow: var(--auth-shadow);
+        padding: 32px 28px 28px;
+      }
+
+      .auth-card h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--auth-text);
+      }
+
+      /* 登录：标题与副标题居中，表单项仍左对齐 */
+      .auth-card--login h1,
+      .auth-card--login > .auth-lead {
+        text-align: center;
+      }
+
+      /* 找回密码：标题与说明居中 */
+      .auth-card--forgot h1,
+      .auth-card--forgot > .auth-lead {
+        text-align: center;
+      }
+
+      .auth-card--reset h1 {
+        text-align: center;
+      }
+
+      .auth-lead {
+        margin: 0 0 28px;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        color: var(--auth-muted);
+      }
+
+      .auth-card--reset .auth-lead {
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .auth-requirements {
+        margin: 0 0 24px;
+        padding: 0;
+        list-style: none;
+        font-size: 0.8125rem;
+        line-height: 1.55;
+        color: var(--auth-muted);
+        text-align: left;
+      }
+
+      .auth-requirements > li:first-child {
+        margin-bottom: 8px;
+      }
+
+      .auth-requirements ul {
+        margin: 0;
+        padding-left: 1.1rem;
+      }
+
+      .auth-requirements li li {
+        margin-bottom: 4px;
+      }
+
+      .auth-field {
+        margin-bottom: 20px;
+      }
+
+      .auth-field label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--auth-muted);
+        margin-bottom: 8px;
+      }
+
+      .auth-field-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .auth-field-row label {
+        margin-bottom: 0;
+      }
+
+      .auth-input {
+        width: 100%;
+        height: var(--auth-input-height);
+        padding: 0 16px;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        line-height: 1.25;
+        border: 1px solid var(--auth-border);
+        border-radius: var(--auth-radius);
+        background: #fff;
+        color: var(--auth-text);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .auth-input-password-wrap .auth-input {
+        padding-right: 48px;
+      }
+
+      .auth-input::placeholder {
+        color: #9ca3af;
+      }
+
+      .auth-input:focus {
+        border-color: var(--auth-purple);
+        box-shadow: 0 0 0 3px rgba(182, 63, 255, 0.18);
+      }
+
+      .auth-input-password-wrap {
+        position: relative;
+      }
+
+      .auth-toggle-password {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 36px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+
+      .auth-toggle-password:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      .auth-toggle-password:focus-visible {
+        outline: 2px solid var(--auth-purple);
+        outline-offset: 2px;
+      }
+
+      .auth-toggle-password img {
+        width: 24px;
+        height: 24px;
+        display: block;
+        pointer-events: none;
+      }
+
+      .auth-link {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--auth-purple);
+        text-decoration: none;
+      }
+
+      .auth-link:hover {
+        text-decoration: underline;
+      }
+
+      .auth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        height: 48px;
+        margin-top: 8px;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #fff;
+        background: var(--auth-purple);
+        border: none;
+        border-radius: var(--auth-radius);
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.05s ease;
+      }
+
+      .auth-btn:hover {
+        background: var(--auth-purple-hover);
+      }
+
+      .auth-btn:active {
+        transform: translateY(1px);
+      }
+
+      /* 找回密码：表单与底部链接之间的浅分割线 */
+      .auth-card-divider {
+        display: block;
+        height: 0;
+        margin: 24px 0 20px;
+        border: 0;
+        border-top: 1px solid var(--auth-border);
+      }
+
+      .auth-card-footer {
+        text-align: center;
+      }
+
+      .auth-footer-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 0;
+        font-size: 0.875rem;
+        color: var(--auth-muted);
+        text-decoration: none;
+      }
+
+      .auth-footer-link:hover {
+        color: var(--auth-text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-shell">
+      <div
+        class:list={['auth-stack', logoAlign === 'center' && 'auth-stack--logo-center']}
+      >
+        <slot />
+      </div>
+    </div>
+  </body>
+</html>

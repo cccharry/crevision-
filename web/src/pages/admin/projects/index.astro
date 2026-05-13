@@ -1,0 +1,486 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Projects" activeNav="projects">
+  <h1 class="adm-page-title">Projects</h1>
+
+  <section class="adm-card">
+    <div class="adm-section-head">
+      <h2>Homepage Carousel</h2>
+    </div>
+    <div id="carousel-strip" class="adm-carousel-strip"></div>
+    <div id="carousel-empty" class="adm-empty" hidden>
+      <strong>No Homepage Carousel Projects</strong>
+      Select projects to display in Homepage Carousel from all projects list
+    </div>
+  </section>
+
+  <section class="adm-card">
+    <div class="adm-section-head">
+      <h2>All Projects</h2>
+      <button type="button" class="adm-btn adm-btn--outline" id="btn-open-new-project">
+        + Add Project
+      </button>
+    </div>
+    <div id="projects-grid" class="adm-projects-grid"></div>
+    <div id="projects-empty" class="adm-empty" hidden>
+      <strong>No Projects</strong>
+      Click &apos;Add Project&apos; button above to add a new project
+    </div>
+  </section>
+
+  <dialog id="dlg-new-project" class="adm-dialog">
+    <form method="dialog" id="form-new-project">
+      <div class="adm-dialog-head">
+        <h2>Add New Project</h2>
+        <button type="button" class="adm-dialog-close" id="dlg-close-x" aria-label="Close">
+          ×
+        </button>
+      </div>
+      <div class="adm-dialog-body">
+        <p class="adm-dialog-lead">填写基本信息，确认后将进入项目详情页继续编辑。</p>
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="np-title-en">EN TITLE</label>
+            <input class="adm-input" id="np-title-en" name="titleEn" required autocomplete="off" />
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="np-title-zh">CN TITLE</label>
+            <input class="adm-input" id="np-title-zh" name="titleZh" autocomplete="off" />
+          </div>
+        </div>
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="np-year">Time</label>
+            <select class="adm-select" id="np-year" name="year"></select>
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="np-services">Type of Work（逗号分隔）</label>
+            <input
+              class="adm-input"
+              id="np-services"
+              name="services"
+              placeholder="UX Design, Web Design"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="np-intro-en">EN Description（项目介绍）</label>
+          <textarea class="adm-textarea" id="np-intro-en" name="introEn" rows="4"></textarea>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="np-intro-zh">CN Description（项目介绍）</label>
+          <textarea class="adm-textarea" id="np-intro-zh" name="introZh" rows="4"></textarea>
+        </div>
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="np-sum-en">EN Summary（列表短描述，可空）</label>
+            <textarea class="adm-textarea" id="np-sum-en" name="summaryEn" rows="2"></textarea>
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="np-sum-zh">CN Summary（列表短描述，可空）</label>
+            <textarea class="adm-textarea" id="np-sum-zh" name="summaryZh" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="np-hero">Lead Image（可选）</label>
+          <input class="adm-input" type="file" id="np-hero" accept="image/*" />
+        </div>
+      </div>
+      <div class="adm-dialog-footer">
+        <button type="submit" class="adm-btn adm-btn--primary">Save</button>
+        <button type="button" class="adm-btn adm-btn--outline" id="dlg-cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+</AdminLayout>
+
+<style is:global>
+  .adm-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .adm-project-card {
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .adm-project-card-thumb {
+    aspect-ratio: 3 / 2;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .adm-project-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .adm-project-card-body {
+    padding: 14px;
+  }
+
+  .adm-project-card-title {
+    margin: 0 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .adm-project-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .adm-project-card-actions .adm-btn--stretch {
+    flex: 1;
+  }
+
+  .adm-btn-icon-only {
+    padding: 6px 10px;
+    min-width: 40px;
+  }
+
+  .adm-btn-icon-only img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .adm-toggles {
+    font-size: 0.75rem;
+    color: var(--adm-muted);
+    padding-top: 10px;
+    border-top: 1px solid var(--adm-border);
+  }
+
+  .adm-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .adm-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .adm-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .adm-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+
+  .adm-switch-slider::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+
+  .adm-switch input:checked + .adm-switch-slider {
+    background: var(--adm-purple);
+  }
+
+  .adm-switch input:checked + .adm-switch-slider::before {
+    transform: translateX(20px);
+  }
+
+  .adm-carousel-strip {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .adm-carousel-card {
+    flex: 0 0 220px;
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  /* 与列表等统一为 3:2，裁切规则一致 */
+  .adm-carousel-card .adm-project-card-thumb {
+    aspect-ratio: 3 / 2;
+  }
+
+  .adm-dialog {
+    border: none;
+    border-radius: var(--adm-radius);
+    padding: 0;
+    max-width: 560px;
+    width: calc(100% - 32px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .adm-dialog::backdrop {
+    background: rgba(17, 24, 39, 0.45);
+  }
+
+  .adm-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 2px solid var(--adm-purple);
+  }
+
+  .adm-dialog-head h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--adm-purple);
+  }
+
+  .adm-dialog-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--adm-purple);
+    padding: 4px 8px;
+  }
+
+  .adm-dialog-body {
+    padding: 20px;
+    max-height: min(70vh, 620px);
+    overflow-y: auto;
+  }
+
+  .adm-dialog-lead {
+    margin: 0 0 16px;
+        font-size: 0.875rem;
+        color: var(--adm-muted);
+  }
+
+  .adm-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--adm-border);
+  }
+</style>
+
+<script>
+  import {
+    loadAllDrafts,
+    upsertDraft,
+    createDraftFromModal,
+    touchDraft,
+    type AdminProjectDraft,
+  } from '../../../scripts/admin-project-draft.ts';
+
+  const dlg = document.getElementById('dlg-new-project') as HTMLDialogElement | null;
+  const form = document.getElementById('form-new-project') as HTMLFormElement | null;
+  const grid = document.getElementById('projects-grid');
+  const empty = document.getElementById('projects-empty');
+  const carouselStrip = document.getElementById('carousel-strip');
+  const carouselEmpty = document.getElementById('carousel-empty');
+  const yearSelect = document.getElementById('np-year') as HTMLSelectElement | null;
+
+  const y0 = new Date().getFullYear();
+  for (let y = y0 + 1; y >= 2000; y--) {
+    const op = document.createElement('option');
+    op.value = String(y);
+    op.textContent = String(y);
+    if (y === y0) op.selected = true;
+    yearSelect?.appendChild(op);
+  }
+
+  function esc(s: string): string {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function render(): void {
+    const projects = loadAllDrafts().sort(
+      (a, b) => a.projectsListOrder - b.projectsListOrder || a.createdAt.localeCompare(b.createdAt)
+    );
+
+    if (!grid || !empty) return;
+    grid.innerHTML = '';
+    empty.hidden = projects.length > 0;
+
+    for (const p of projects) {
+      grid.appendChild(renderCard(p));
+    }
+
+    const carousel = projects.filter((p) => p.showOnHomeCarousel).sort(
+      (a, b) => a.homeCarouselOrder - b.homeCarouselOrder
+    );
+    if (carouselStrip && carouselEmpty) {
+      carouselStrip.innerHTML = '';
+      carouselEmpty.hidden = carousel.length > 0;
+      if (carousel.length === 0) return;
+      for (const p of carousel) {
+        carouselStrip.appendChild(renderCarouselCard(p));
+      }
+    }
+  }
+
+  function renderCarouselCard(p: AdminProjectDraft): HTMLElement {
+    const el = document.createElement('div');
+    el.className = 'adm-carousel-card';
+    const thumb = p.heroImageDataUrl
+      ? `<img src="${esc(p.heroImageDataUrl)}" alt="" />`
+      : '';
+    el.innerHTML = `
+      <div class="adm-project-card-thumb">${thumb}</div>
+      <div class="adm-project-card-body">
+        <p class="adm-project-card-title">${esc(p.title.en || '')} | ${esc(p.title.zh || '')}</p>
+        <p style="margin:0;font-size:0.75rem;color:var(--adm-muted);display:flex;align-items:center;gap:6px;">
+          <img src="/admin/icons/icn_backend_drag_to_move.svg" alt="" width="14" height="14" style="flex-shrink:0;opacity:0.85;" />
+          <span>Drag to reorder · 演示未接拖拽 API</span>
+        </p>
+        <button type="button" class="adm-btn adm-btn--outline" style="margin-top:10px;width:100%;font-size:0.75rem;" data-remove-carousel="${esc(p.id)}">
+          Remove from Carousel
+        </button>
+      </div>`;
+    el.querySelector(`[data-remove-carousel]`)?.addEventListener('click', () => {
+      const cur = loadAllDrafts().find((x) => x.id === p.id);
+      if (cur) upsertDraft(touchDraft({ ...cur, showOnHomeCarousel: false }));
+      render();
+    });
+    return el;
+  }
+
+  function renderCard(p: AdminProjectDraft): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'adm-project-card';
+    const thumb = p.heroImageDataUrl
+      ? `<img src="${esc(p.heroImageDataUrl)}" alt="" />`
+      : '';
+    const titleLine = `${esc(p.title.en || 'Untitled')} | ${esc(p.title.zh || '')}`;
+    wrap.innerHTML = `
+      <div class="adm-project-card-thumb">${thumb}</div>
+      <div class="adm-project-card-body">
+        <p class="adm-project-card-title">${titleLine}</p>
+        <div class="adm-project-card-actions">
+          <a class="adm-btn adm-btn--outline adm-btn--stretch" href="/admin/projects/detail?id=${encodeURIComponent(p.id)}">Edit</a>
+          <button type="button" class="adm-btn adm-btn--outline adm-btn-icon-only" data-remove="${esc(p.id)}" title="Remove project" aria-label="Remove project">
+            <img src="/admin/icons/icn_backend_remove_project.svg" alt="" width="16" height="16" />
+          </button>
+        </div>
+        <div class="adm-toggles">
+          <div style="font-weight:600;margin-bottom:4px;">Display in</div>
+          <div class="adm-toggle-row">
+            <span>Homepage Carousel</span>
+            <label class="adm-switch">
+              <input type="checkbox" data-field="carousel" data-id="${esc(p.id)}" ${p.showOnHomeCarousel ? 'checked' : ''} />
+              <span class="adm-switch-slider"></span>
+            </label>
+          </div>
+          <div class="adm-toggle-row">
+            <span>Projects Page</span>
+            <label class="adm-switch">
+              <input type="checkbox" data-field="projects" data-id="${esc(p.id)}" ${p.visibleOnProjectsPage ? 'checked' : ''} />
+              <span class="adm-switch-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>`;
+
+    wrap.querySelector(`[data-remove]`)?.addEventListener('click', () => {
+      if (!confirm('Remove this project from local drafts?')) return;
+      const next = loadAllDrafts().filter((x) => x.id !== p.id);
+      localStorage.setItem(
+        'crevision:admin:projects',
+        JSON.stringify(next)
+      );
+      render();
+    });
+
+    wrap.querySelectorAll<HTMLInputElement>('input[data-field]').forEach((inp) => {
+      inp.addEventListener('change', () => {
+        const id = inp.dataset.id;
+        const cur = loadAllDrafts().find((x) => x.id === id);
+        if (!cur) return;
+        if (inp.dataset.field === 'carousel') {
+          upsertDraft(touchDraft({ ...cur, showOnHomeCarousel: inp.checked }));
+        } else {
+          upsertDraft(touchDraft({ ...cur, visibleOnProjectsPage: inp.checked }));
+        }
+        render();
+      });
+    });
+
+    return wrap;
+  }
+
+  document.getElementById('btn-open-new-project')?.addEventListener('click', () => {
+    form?.reset();
+    if (yearSelect) yearSelect.value = String(y0);
+    dlg?.showModal();
+  });
+
+  document.getElementById('dlg-close-x')?.addEventListener('click', () => dlg?.close());
+  document.getElementById('dlg-cancel')?.addEventListener('click', () => dlg?.close());
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const titleEn = String(fd.get('titleEn') || '');
+    const titleZh = String(fd.get('titleZh') || '');
+    const heroInput = document.getElementById('np-hero') as HTMLInputElement | null;
+    let heroImageDataUrl: string | null = null;
+    const file = heroInput?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      heroImageDataUrl = await new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(typeof r.result === 'string' ? r.result : null);
+        r.onerror = () => resolve(null);
+        r.readAsDataURL(file);
+      });
+    }
+
+    const draft = createDraftFromModal({
+      titleEn,
+      titleZh,
+      year: String(fd.get('year') || ''),
+      servicesRaw: String(fd.get('services') || ''),
+      introEn: String(fd.get('introEn') || ''),
+      introZh: String(fd.get('introZh') || ''),
+      summaryEn: String(fd.get('summaryEn') || ''),
+      summaryZh: String(fd.get('summaryZh') || ''),
+      heroImageDataUrl,
+    });
+
+    upsertDraft(draft);
+    dlg?.close();
+    window.location.href = `/admin/projects/detail?id=${encodeURIComponent(draft.id)}`;
+  });
+
+  render();
+</script>

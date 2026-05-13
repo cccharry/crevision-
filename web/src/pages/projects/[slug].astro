@@ -1,0 +1,47 @@
+---
+import { projectBySlugQuery } from '../../sanity/queries';
+import { getSanityClient } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const client = getSanityClient();
+  if (!client) {
+    return [];
+  }
+  const slugs = await client.fetch<Array<{ slug: string }>>(
+    `*[_type == "project"]{ "slug": slug.current }`
+  );
+  return slugs.filter((s) => s.slug).map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const client = getSanityClient();
+let doc: Record<string, unknown> | null = null;
+
+if (client && slug) {
+  doc = await client.fetch(projectBySlugQuery, { slug });
+}
+
+type Bilingual = { zh?: string; en?: string };
+const titleObj = doc?.title as Bilingual | undefined;
+const pageTitle = titleObj?.zh || titleObj?.en || slug;
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle} · Cre-Vision</title>
+  </head>
+  <body style="font-family:system-ui;max-width:42rem;margin:2rem auto;padding:0 1rem;">
+    {!doc && <p>未找到案例或未配置 Sanity。</p>}
+    {doc && (
+      <>
+        <h1>{pageTitle}</h1>
+        <pre style="white-space:pre-wrap;background:#f6f6f6;padding:1rem;font-size:12px;">
+          {JSON.stringify(doc, null, 2)}
+        </pre>
+      </>
+    )}
+    <p><a href="/projects">返回列表</a></p>
+  </body>
+</html>

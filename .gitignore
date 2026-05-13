@@ -1,0 +1,8 @@
+node_modules/
+web/node_modules/
+studio/node_modules/
+web/.env
+studio/.env
+web/.astro/
+web/dist/
+studio/dist/

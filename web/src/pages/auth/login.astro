@@ -1,0 +1,77 @@
+---
+import AuthLayout from '../../layouts/AuthLayout.astro';
+---
+<AuthLayout title="Sign in" variant="login" logoAlign="left">
+  <a class="auth-logo" href="/" aria-label="Cre-Vision home">
+    <img src="/logo%26text.svg" alt="Cre-Vision UX&amp;UI DESIGN" width="200" height="48" />
+  </a>
+
+  <div class="auth-card auth-card--login">
+    <h1>Welcome back</h1>
+    <p class="auth-lead">
+      Please enter your credentials to access the Studio back-office.
+    </p>
+
+    <form id="login-form" method="post" action="#" novalidate>
+      <div class="auth-field">
+        <label for="email">Email Address</label>
+        <input
+          class="auth-input"
+          id="email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="name@studio.com"
+          required
+        />
+      </div>
+
+      <div class="auth-field">
+        <div class="auth-field-row">
+          <label for="password">Password</label>
+          <a class="auth-link" href="/auth/forgot-password">Forgot Password?</a>
+        </div>
+        <div class="auth-input-password-wrap" data-password-toggle>
+          <input
+            class="auth-input"
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+          <button
+            class="auth-toggle-password"
+            type="button"
+            aria-label="Show password"
+            data-label-show="Show password"
+            data-label-hide="Hide password"
+          >
+            <img
+              src="/icn_backend_invisible.svg"
+              alt=""
+              width="24"
+              height="24"
+            />
+          </button>
+        </div>
+      </div>
+
+      <button class="auth-btn" type="submit">
+        Sign In to Dashboard
+        <span aria-hidden="true">→</span>
+      </button>
+    </form>
+  </div>
+</AuthLayout>
+
+<script>
+  import { initPasswordVisibilityToggles } from '../../scripts/auth-password-toggle.ts';
+
+  const form = document.getElementById('login-form');
+  initPasswordVisibilityToggles(document);
+  // 占位：接入后端鉴权前拦截提交
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+  });
+</script>

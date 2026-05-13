@@ -1,0 +1,381 @@
+---
+interface Props {
+  title: string;
+  /** 侧边栏当前项：projects | information | settings */
+  activeNav?: 'projects' | 'information' | 'settings';
+}
+
+const { title, activeNav = 'projects' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · Cre-Vision Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@300;500&display=swap"
+      rel="stylesheet"
+    />
+    <style is:global>
+      :root {
+        --adm-bg: #f3f4f6;
+        --adm-card: #ffffff;
+        --adm-text: #111827;
+        --adm-muted: #6b7280;
+        --adm-border: #e5e7eb;
+        --adm-purple: #B63FFF;
+        --adm-purple-soft: rgba(182, 63, 255, 0.12);
+        --adm-purple-hover: #a435e8;
+        --adm-radius: 8px;
+        --adm-sidebar-w: 260px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body.admin-body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Inter', system-ui, sans-serif;
+        background: var(--adm-bg);
+        color: var(--adm-text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .adm-shell {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .adm-sidebar {
+        width: var(--adm-sidebar-w);
+        flex-shrink: 0;
+        background: var(--adm-card);
+        border-right: 1px solid var(--adm-border);
+        display: flex;
+        flex-direction: column;
+        padding: 20px 16px 24px;
+      }
+
+      .adm-sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 28px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .adm-sidebar-logo-mark {
+        flex-shrink: 0;
+        height: 48px;
+        width: auto;
+        display: block;
+      }
+
+      .adm-sidebar-logo-type {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .adm-sidebar-logo-title {
+        font-family: 'Montserrat', system-ui, sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.15;
+        color: var(--adm-purple);
+        letter-spacing: 0.01em;
+      }
+
+      .adm-sidebar-logo-sub {
+        font-family: 'Montserrat', system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 300;
+        line-height: 1.2;
+        color: #374151;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .adm-nav-link {
+        display: flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 14px 0 12px;
+        margin-bottom: 4px;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.25;
+        color: #71717a;
+        text-decoration: none;
+        border-left: 4px solid transparent;
+      }
+
+      .adm-nav-link:hover {
+        background: #f4f4f5;
+      }
+
+      .adm-nav-link.is-active:hover {
+        background: #fafafa;
+        color: #18181b;
+      }
+
+      .adm-nav-link.is-active {
+        background: #fafafa;
+        color: #18181b;
+        font-weight: 400;
+        border-left-color: var(--adm-purple);
+      }
+
+      .adm-sidebar-spacer {
+        flex: 1;
+      }
+
+      .adm-btn-logout {
+        display: block;
+        width: 100%;
+        padding: 10px 14px;
+        text-align: center;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--adm-purple);
+        background: transparent;
+        border: 1px solid var(--adm-purple);
+        border-radius: var(--adm-radius);
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .adm-btn-logout:hover {
+        background: var(--adm-purple-soft);
+      }
+
+      .adm-main {
+        flex: 1;
+        min-width: 0;
+        padding: 28px 32px 48px;
+      }
+
+      .adm-page-title {
+        margin: 0 0 24px;
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .adm-card {
+        background: var(--adm-card);
+        border: 1px solid var(--adm-border);
+        border-radius: var(--adm-radius);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .adm-section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--adm-purple);
+      }
+
+      .adm-section-head h2 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+
+      .adm-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        text-decoration: none;
+      }
+
+      .adm-btn--outline {
+        color: var(--adm-purple);
+        background: #fff;
+        border-color: var(--adm-border);
+      }
+
+      .adm-btn--outline:hover {
+        border-color: var(--adm-purple);
+        background: var(--adm-purple-soft);
+      }
+
+      .adm-btn--primary {
+        color: #fff;
+        background: var(--adm-purple);
+        border-color: var(--adm-purple);
+      }
+
+      .adm-btn--primary:hover {
+        background: var(--adm-purple-hover);
+      }
+
+      .adm-empty {
+        text-align: center;
+        padding: 40px 16px;
+        color: var(--adm-muted);
+      }
+
+      .adm-empty strong {
+        display: block;
+        color: var(--adm-text);
+        margin-bottom: 8px;
+      }
+
+      .adm-label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--adm-muted);
+        margin-bottom: 6px;
+      }
+
+      .adm-input,
+      .adm-textarea,
+      .adm-select {
+        width: 100%;
+        padding: 10px 12px;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        border: 1px solid var(--adm-border);
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .adm-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .adm-field {
+        margin-bottom: 16px;
+      }
+
+      .adm-grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      /**
+       * 后台上传图预览统一：固定比例容器，一侧铺满后裁切，居中显示（object-fit: cover，不拉伸）
+       */
+      .adm-upload-frame {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        background: #e5e7eb;
+        border-radius: 6px;
+      }
+
+      .adm-upload-frame--3-2 {
+        aspect-ratio: 3 / 2;
+      }
+
+      .adm-upload-frame > .adm-upload-cover {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+      }
+
+      .adm-upload-frame > .adm-upload-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--adm-muted);
+        font-size: 0.875rem;
+        background: #e5e7eb;
+      }
+
+      .adm-upload-slot-inner {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid var(--adm-border);
+        border-radius: 6px;
+      }
+
+      @media (max-width: 720px) {
+        .adm-grid2 {
+          grid-template-columns: 1fr;
+        }
+        .adm-shell {
+          flex-direction: column;
+        }
+        .adm-sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid var(--adm-border);
+        }
+      }
+    </style>
+  </head>
+  <body class="admin-body">
+    <div class="adm-shell">
+      <aside class="adm-sidebar">
+        <a class="adm-sidebar-logo" href="/admin/projects" aria-label="Cre-Vision UX and UI Design">
+          <img
+            class="adm-sidebar-logo-mark"
+            src="/admin/icons/logo_2.svg"
+            alt=""
+            width="56"
+            height="56"
+            aria-hidden="true"
+          />
+          <span class="adm-sidebar-logo-type">
+            <span class="adm-sidebar-logo-title">Cre-Vision</span>
+            <span class="adm-sidebar-logo-sub">UX&amp;UI DESIGN</span>
+          </span>
+        </a>
+        <nav>
+          <a
+            class:list={['adm-nav-link', activeNav === 'information' && 'is-active']}
+            href="/admin/information">Information Management</a
+          >
+          <a
+            class:list={['adm-nav-link', activeNav === 'projects' && 'is-active']}
+            href="/admin/projects">Projects</a
+          >
+          <a
+            class:list={['adm-nav-link', activeNav === 'settings' && 'is-active']}
+            href="/admin/settings">Settings</a
+          >
+        </nav>
+        <div class="adm-sidebar-spacer"></div>
+        <a class="adm-btn-logout" href="/auth/login">Log out</a>
+      </aside>
+      <main class="adm-main">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,333 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Project details" activeNav="projects">
+  <div style="margin-bottom: 12px; font-size: 0.8125rem; color: var(--adm-muted);">
+    <a href="/admin/projects" style="color: inherit;">Projects</a>
+    <span aria-hidden="true"> · </span>
+    <span>Project Details</span>
+  </div>
+
+  <div class="adm-detail-head">
+    <h1 class="adm-page-title" id="detail-heading" style="margin-bottom: 8px;">Project</h1>
+    <div class="adm-detail-toolbar">
+      <label class="adm-toolbar-toggle">
+        Display in Homepage Carousel
+        <span class="adm-switch">
+          <input type="checkbox" id="f-carousel" />
+          <span class="adm-switch-slider"></span>
+        </span>
+      </label>
+      <button type="button" class="adm-btn adm-btn--outline" id="btn-remove-project">
+        <img
+          src="/admin/icons/icn_backend_remove_project.svg"
+          alt=""
+          width="16"
+          height="16"
+          class="adm-toolbar-icon"
+        />
+        Remove Project
+      </button>
+    </div>
+  </div>
+
+  <div class="adm-detail-layout">
+    <div class="adm-detail-main">
+      <section class="adm-card">
+        <div class="adm-section-head">
+          <h2>Main Content</h2>
+          <button type="button" class="adm-btn adm-btn--primary" id="btn-save">Save</button>
+        </div>
+
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="f-title-en">EN TITLE</label>
+            <input class="adm-input" id="f-title-en" autocomplete="off" />
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="f-title-zh">CN TITLE</label>
+            <input class="adm-input" id="f-title-zh" autocomplete="off" />
+          </div>
+        </div>
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="f-slug">Slug</label>
+            <input class="adm-input" id="f-slug" autocomplete="off" />
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="f-year">Time</label>
+            <select class="adm-select" id="f-year"></select>
+          </div>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="f-services">Type of Work（逗号分隔）</label>
+          <input class="adm-input" id="f-services" autocomplete="off" />
+        </div>
+
+        <div class="adm-field adm-lead-image-field">
+          <div class="adm-lead-image-bar">
+            <span class="adm-lead-image-label">Lead Image</span>
+            <input
+              type="file"
+              id="f-hero-file"
+              accept="image/*"
+              class="adm-hero-file-input"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <button type="button" class="adm-btn-lead-image" id="btn-hero-upload">
+              <img
+                src="/admin/icons/icn_backend_add_project.svg"
+                alt=""
+                width="18"
+                height="18"
+                class="adm-btn-lead-image-icon"
+                id="hero-btn-icon"
+              />
+              <span id="hero-btn-text">Add Image</span>
+            </button>
+          </div>
+          <div id="hero-preview-wrap" class="adm-hero-preview-wrap" hidden>
+            <div class="adm-upload-frame adm-upload-frame--3-2">
+              <img id="hero-preview" class="adm-upload-cover" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <h3 class="adm-subsection-title">项目介绍</h3>
+        <div class="adm-field">
+          <label class="adm-label" for="f-intro-en">EN</label>
+          <textarea class="adm-textarea" id="f-intro-en" rows="4"></textarea>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="f-intro-zh">CN</label>
+          <textarea class="adm-textarea" id="f-intro-zh" rows="4"></textarea>
+        </div>
+
+        <h3 class="adm-subsection-title">列表短描述</h3>
+        <div class="adm-grid2">
+          <div class="adm-field">
+            <label class="adm-label" for="f-sum-en">EN Summary</label>
+            <textarea class="adm-textarea" id="f-sum-en" rows="3"></textarea>
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="f-sum-zh">CN Summary</label>
+            <textarea class="adm-textarea" id="f-sum-zh" rows="3"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <div id="sections-root"></div>
+    </div>
+
+    <aside class="adm-detail-aside">
+      <div class="adm-card adm-aside-sticky">
+        <div class="adm-section-head" style="margin-bottom: 12px;">
+          <h2 style="font-size: 1rem;">Add Section</h2>
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--adm-muted); margin: 0 0 12px;">
+          从右侧点选板块后在下方出现对应内容区；已添加的板块在列表中会变为灰色且不可再点。
+        </p>
+        <ul id="section-picker-list" style="list-style: none; margin: 0; padding: 0;"></ul>
+      </div>
+    </aside>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  .adm-detail-head {
+    margin-bottom: 20px;
+  }
+
+  .adm-detail-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .adm-toolbar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--adm-text);
+    cursor: pointer;
+  }
+
+  .adm-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .adm-detail-aside {
+    min-width: 0;
+  }
+
+  .adm-aside-sticky {
+    position: sticky;
+    top: 20px;
+  }
+
+  .adm-subsection-title {
+    margin: 24px 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--adm-border);
+  }
+
+  .adm-toolbar-icon {
+    flex-shrink: 0;
+    display: block;
+    object-fit: contain;
+  }
+
+  .adm-lead-image-field {
+    margin-bottom: 16px;
+  }
+
+  .adm-lead-image-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--adm-border);
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .adm-lead-image-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--adm-muted);
+  }
+
+  .adm-hero-file-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .adm-btn-lead-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 4px 2px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--adm-purple);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .adm-btn-lead-image:hover {
+    opacity: 0.88;
+  }
+
+  .adm-btn-lead-image:focus-visible {
+    outline: 2px solid var(--adm-purple);
+    outline-offset: 2px;
+  }
+
+  .adm-btn-lead-image-icon {
+    flex-shrink: 0;
+    display: block;
+    object-fit: contain;
+  }
+
+  .adm-hero-preview-wrap {
+    margin-top: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 960px) {
+    .adm-detail-layout {
+      grid-template-columns: 1fr;
+    }
+    .adm-aside-sticky {
+      position: static;
+    }
+  }
+
+  .adm-sec-picker-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .adm-sec-picker-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .adm-sec-picker-icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .adm-sec-picker-btn.is-used {
+    opacity: 0.42;
+    cursor: not-allowed;
+    pointer-events: none;
+    color: #9ca3af;
+  }
+
+  .adm-sec-picker-btn.is-used .adm-sec-picker-icon img {
+    opacity: 0.85;
+    filter: grayscale(0.35);
+  }
+
+  .adm-section-pb .adm-pb-rule {
+    height: 1px;
+    background: var(--adm-border);
+    margin: 0 0 18px;
+  }
+
+  .adm-section-pb .adm-pb-ta {
+    min-height: 140px;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+</style>
+
+<script>
+  import { bootAdminProjectDetail } from '../../../scripts/admin-project-detail.ts';
+
+  const yearSel = document.getElementById('f-year') as HTMLSelectElement | null;
+  const y0 = new Date().getFullYear();
+  if (yearSel) {
+    for (let y = y0 + 1; y >= 2000; y--) {
+      const op = document.createElement('option');
+      op.value = String(y);
+      op.textContent = String(y);
+      yearSel.appendChild(op);
+    }
+  }
+
+  bootAdminProjectDetail();
+</script>

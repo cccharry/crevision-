@@ -1,0 +1,14 @@
+{
+  "name": "crevision-monorepo",
+  "private": true,
+  "workspaces": [
+    "web",
+    "studio"
+  ],
+  "scripts": {
+    "web:dev": "npm run dev -w web",
+    "web:build": "npm run build -w web",
+    "studio:dev": "npm run dev -w studio",
+    "studio:deploy": "npm run deploy -w studio"
+  }
+}

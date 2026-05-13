@@ -1,0 +1,51 @@
+---
+import { projectsListQuery } from '../../sanity/queries';
+import { getSanityClient } from '../../lib/sanity';
+
+const client = getSanityClient();
+let projects: unknown[] = [];
+let cmsReady = Boolean(client);
+
+if (client) {
+  try {
+    projects = await client.fetch(projectsListQuery);
+  } catch {
+    cmsReady = false;
+  }
+}
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects · Cre-Vision</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
+      .warn { background: #fff3cd; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+      ul { padding-left: 1.2rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Projects（Sanity 数据源）</h1>
+    {!cmsReady && (
+      <div class="warn">
+        未配置 <code>SANITY_PROJECT_ID</code> 或拉取失败。请在 <code>web/.env</code> 中配置后运行{' '}
+        <code>npm run dev</code>。
+      </div>
+    )}
+    {cmsReady && projects.length === 0 && (
+      <p>暂无案例：请在 Sanity Studio 创建 <strong>project</strong> 文档并发布。</p>
+    )}
+    {projects.length > 0 && (
+      <ul>
+        {projects.map((p: any) => (
+          <li>
+            <a href={`/projects/${p.slug}`}>{p.title?.zh || p.title?.en || p.slug}</a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <p><a href="/">返回新版首页</a> · <a href="../projects.html">旧版 Projects 页面</a></p>
+  </body>
+</html>

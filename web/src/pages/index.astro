@@ -1,0 +1,71 @@
+---
+/**
+ * 新版前台入口（Astro + Sanity）。
+ * 现有静态页仍保留在仓库根目录 index.html，迁移完成后可将站点根目录切到 web/dist。
+ */
+const title = 'Cre-Vision';
+---
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · CMS 前台（开发中）</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 42rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.6;
+      }
+      code { background: #f4f4f4; padding: 0.15rem 0.35rem; }
+      .admin-box {
+        margin: 1.75rem 0;
+        padding: 1.25rem 1.35rem;
+        border: 2px solid #B63FFF;
+        border-radius: 10px;
+        background: #faf5ff;
+      }
+      .admin-box h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.1rem;
+        color: #111827;
+      }
+      .admin-box ul { margin: 0; padding-left: 1.25rem; }
+      .admin-box li { margin: 0.45rem 0; }
+      .admin-box a { color: #B63FFF; font-weight: 600; }
+      .admin-box p {
+        margin: 0.75rem 0 0;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Cre-Vision 新版前台</h1>
+
+    <div class="admin-box">
+      <h2>后台界面预览（本地开发）</h2>
+      <p style="margin-top: 0; margin-bottom: 0.75rem">
+        下面链接在同一站点内，请先在本机运行 <code>cd web && npm run dev</code>，再用浏览器打开。
+      </p>
+      <ul>
+        <li><a href="/admin/projects">Projects 后台（列表 / 新建弹窗）</a></li>
+        <li><a href="/admin/information">Information Management（Who we are）</a></li>
+        <li><a href="/admin/settings">Settings 占位</a></li>
+        <li><a href="/auth/login">登录页</a> · <a href="/auth/forgot-password">找回密码</a></li>
+      </ul>
+      <p>若点开是空白或打不开，说明开发服务器未启动，需在终端执行上面的 <code>npm run dev</code>。</p>
+    </div>
+
+    <p>
+      本目录为 <strong>Astro</strong> 工程，数据来自 <strong>Sanity</strong>（配置好环境变量后构建即可拉取案例）。
+    </p>
+    <p>当前仓库根目录的 <code>index.html</code> 等仍为线上静态版；迁移完成后用 <code>web/dist</code> 部署即可。</p>
+    <ul>
+      <li><a href="/projects">案例列表（接入 Sanity 后）</a></li>
+    </ul>
+    <p><a href="../index.html">返回旧版静态首页（相对路径）</a></p>
+  </body>
+</html>

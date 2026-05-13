@@ -1,0 +1,107 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Information Management" activeNav="information">
+  <h1 class="adm-page-title">Information Management</h1>
+
+  <section class="adm-card adm-info-card">
+    <h2 class="adm-info-section-title">Who we are</h2>
+    <div class="adm-info-title-rule" aria-hidden="true"></div>
+
+    <div class="adm-field">
+      <label class="adm-label" for="wwa-en">EN</label>
+      <textarea
+        class="adm-textarea adm-textarea--who"
+        id="wwa-en"
+        rows="8"
+        spellcheck="true"
+      ></textarea>
+    </div>
+
+    <div class="adm-field" style="margin-bottom: 0">
+      <label class="adm-label" for="wwa-zh">CN</label>
+      <textarea
+        class="adm-textarea adm-textarea--who"
+        id="wwa-zh"
+        rows="8"
+        spellcheck="true"
+      ></textarea>
+    </div>
+  </section>
+
+  <div class="adm-info-actions">
+    <button type="button" class="adm-btn adm-btn--save-soft" id="wwa-save">Save</button>
+    <button type="button" class="adm-btn adm-btn--outline" id="wwa-cancel">Cancel</button>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  .adm-info-card {
+    max-width: 960px;
+  }
+
+  .adm-info-section-title {
+    margin: 0 0 12px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--adm-text);
+  }
+
+  .adm-info-title-rule {
+    height: 2px;
+    width: 100%;
+    background: var(--adm-purple);
+    margin-bottom: 24px;
+    border-radius: 1px;
+  }
+
+  .adm-textarea--who {
+    min-height: 160px;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .adm-info-actions {
+    max-width: 960px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .adm-btn--save-soft {
+    color: var(--adm-purple);
+    background: var(--adm-purple-soft);
+    border: 1px solid var(--adm-purple);
+    font-weight: 600;
+  }
+
+  .adm-btn--save-soft:hover {
+    background: rgba(182, 63, 255, 0.2);
+  }
+</style>
+
+<script>
+  import { loadWhoWeAre, saveWhoWeAre } from '../../scripts/admin-who-we-are.ts';
+
+  const taEn = document.getElementById('wwa-en') as HTMLTextAreaElement | null;
+  const taZh = document.getElementById('wwa-zh') as HTMLTextAreaElement | null;
+
+  function fill(): void {
+    const { en, zh } = loadWhoWeAre();
+    if (taEn) taEn.value = en;
+    if (taZh) taZh.value = zh;
+  }
+
+  fill();
+
+  document.getElementById('wwa-save')?.addEventListener('click', () => {
+    if (!taEn || !taZh) return;
+    saveWhoWeAre({ en: taEn.value, zh: taZh.value });
+    alert('已保存到本地（接入 Sanity 后将写入站点配置）');
+  });
+
+  document.getElementById('wwa-cancel')?.addEventListener('click', () => {
+    fill();
+  });
+</script>
