@@ -19,6 +19,8 @@ import {
 import {
   readCompressedImageFile,
   compressDraftImages,
+  draftHasOversizedImages,
+  SAVE_COMPRESS_OPTS,
   isImageFile,
 } from './admin-image-compress.ts';
 
@@ -546,7 +548,9 @@ function bumpCarouselOrderIfShown(project: AdminProjectDraft): void {
   if (!project.showOnHomeCarousel) return;
   const list = loadAllDrafts();
   const others = list.filter((p) => p.id !== project.id && p.showOnHomeCarousel);
-  const minO = others.length ? Math.min(...others.map((p) => p.homeCarouselOrder)) : null;
+  const minO = others.length
+    ? Math.min(...others.map((p) => p.homeCarouselOrder ?? 0))
+    : null;
   project.homeCarouselOrder = minO === null ? 0 : minO - 1;
 }
 
@@ -572,13 +576,29 @@ function saveQuiet(): void {
   }
 }
 
-/** 点 Save：若仍超限则压缩后重试并提示用户 */
+/** 点 Save：大图先压缩再写入，避免长时间无反馈或 localStorage 超限 */
 async function saveQuietWithRetry(): Promise<boolean> {
   if (!draft) return false;
   Object.assign(draft, collectBasicsFromDom());
   syncBackgroundFromSections();
+
+  let didCompress = false;
+  if (draftHasOversizedImages(draft)) {
+    try {
+      await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
+      didCompress = true;
+    } catch (err) {
+      console.error(err);
+      alert('压缩图片超时或失败。请删除过大的图片后重新上传，再点 Save。');
+      return false;
+    }
+  }
+
   try {
     upsertDraft(touchDraft(draft));
+    if (didCompress) {
+      alert('图片已自动压缩并保存（前台仍可全宽展示）。');
+    }
     return true;
   } catch (err) {
     if (!isStorageQuotaError(err)) {
@@ -587,15 +607,16 @@ async function saveQuietWithRetry(): Promise<boolean> {
       return false;
     }
   }
+
   try {
-    await compressDraftImages(draft);
+    await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
     upsertDraft(touchDraft(draft));
     alert('图片体积较大，已自动压缩后保存（页面上仍可按全宽大图展示）。');
     return true;
   } catch (err) {
     console.error(err);
     alert(
-      '保存仍失败：图片总容量过大。请减少张数，或换用更短的长图；单张超长设计稿会自动压缩，但多张叠加仍可能超限。',
+      '保存仍失败：图片总容量过大。请减少张数，或删除旧图后重新 Add Image 上传。',
     );
     return false;
   }
@@ -653,10 +674,29 @@ export function bootAdminProjectDetail(): void {
 
   $('#btn-save')?.addEventListener('click', async () => {
     if (!draft) return;
-    bumpCarouselOrderIfShown(draft);
-    const ok = await saveQuietWithRetry();
-    if (!ok) return;
-    window.location.href = '/admin/projects';
+    const btn = $('#btn-save') as HTMLButtonElement | null;
+    const cancelBtn = $('#btn-detail-cancel') as HTMLButtonElement | null;
+    const prevLabel = btn?.textContent ?? 'Save';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+    }
+    if (cancelBtn) cancelBtn.disabled = true;
+    try {
+      bumpCarouselOrderIfShown(draft);
+      const ok = await saveQuietWithRetry();
+      if (!ok) return;
+      window.location.href = '/admin/projects';
+    } catch (err) {
+      console.error(err);
+      alert('保存时发生错误，请打开浏览器控制台查看详情或刷新后重试。');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = prevLabel;
+      }
+      if (cancelBtn) cancelBtn.disabled = false;
+    }
   });
 
   $('#btn-detail-cancel')?.addEventListener('click', () => {
