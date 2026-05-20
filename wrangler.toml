@@ -1,18 +1,9 @@
-# 仓库根：Pages Functions 位于 ./functions（与 web/ 同级）
-# Cloudflare Pages 请将「构建根目录」设为仓库根，例如：
-#   构建命令：cd web && npm ci && npm run build
-#   输出目录：web/dist
-# 下方 KV / vars 用于 wrangler pages dev 与 wrangler pages deploy；
-# 通过 Git 连接的 Pages 生产环境仍建议在控制台核对绑定是否一致。
+# Pages 构建：根目录执行 cd web && npm ci && npm run build，输出 web/dist
+# 密码 ADMIN_PASSWORD / SESSION_SECRET 仅在 Cloudflare 控制台配置，勿写在此文件
 name = "crevision"
-compatibility_date = "2024-11-01"
 pages_build_output_dir = "web/dist"
+compatibility_date = "2025-01-01"
 
-# KV：在 Cloudflare 控制台 Workers & Pages → KV 创建命名空间后，将 id 替换为真实 ID
 [[kv_namespaces]]
 binding = "CMS_KV"
 id = "7c9b2bd5b7ee45a584c492f616a81ce8"
-
-[vars]
-ADMIN_PASSWORD = "你的后台密码"
-SESSION_SECRET = "你的后台密码"
