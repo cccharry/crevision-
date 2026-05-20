@@ -22,6 +22,16 @@ const DEFAULTS: Required<CompressOptions> = {
   maxChars: 1_400_000,
 };
 
+/** 点 Save 时对未压缩旧图使用更紧的参数，避免卡住 localStorage */
+export const SAVE_COMPRESS_OPTS: CompressOptions = {
+  maxWidth: 1920,
+  maxHeight: 8000,
+  quality: 0.82,
+  maxChars: 650_000,
+};
+
+const PER_IMAGE_TIMEOUT_MS = 45_000;
+
 export function isImageFile(file: File): boolean {
   if (file.type.startsWith('image/')) return true;
   return /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(file.name);
@@ -75,6 +85,44 @@ function drawToCanvas(img: HTMLImageElement, width: number, height: number): HTM
   return canvas;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+    }),
+  ]);
+}
+
+async function decodeToCanvas(
+  dataUrl: string,
+  maxW: number,
+  maxH: number,
+): Promise<HTMLCanvasElement> {
+  const blob = await fetch(dataUrl).then((r) => r.blob());
+  try {
+    const bitmap = await createImageBitmap(blob);
+    const { width, height } = scaleToFit(bitmap.width, bitmap.height, maxW, maxH);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      throw new Error('canvas unsupported');
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    return canvas;
+  } catch {
+    const img = await loadImageFromUrl(dataUrl);
+    const { width, height } = scaleToFit(img.naturalWidth, img.naturalHeight, maxW, maxH);
+    return drawToCanvas(img, width, height);
+  }
+}
+
 /** 将已有 data URL 重新编码压缩（保存失败时对草稿内图片重试） */
 export async function compressDataUrl(
   dataUrl: string,
@@ -82,16 +130,20 @@ export async function compressDataUrl(
 ): Promise<string> {
   if (!dataUrl.startsWith('data:image/')) return dataUrl;
   const o = { ...DEFAULTS, ...opts };
-  const img = await loadImageFromUrl(dataUrl);
-  const { width, height } = scaleToFit(img.naturalWidth, img.naturalHeight, o.maxWidth, o.maxHeight);
-  let canvas = drawToCanvas(img, width, height);
-  let q = o.quality;
-  let out = canvasToDataUrl(canvas, q);
-  while (out.length > o.maxChars && q > 0.45) {
-    q -= 0.08;
-    out = canvasToDataUrl(canvas, q);
-  }
-  return out;
+  if (dataUrl.length <= o.maxChars * 0.85) return dataUrl;
+
+  const run = async () => {
+    const canvas = await decodeToCanvas(dataUrl, o.maxWidth, o.maxHeight);
+    let q = o.quality;
+    let out = canvasToDataUrl(canvas, q);
+    while (out.length > o.maxChars && q > 0.45) {
+      q -= 0.08;
+      out = canvasToDataUrl(canvas, q);
+    }
+    return out;
+  };
+
+  return withTimeout(run(), PER_IMAGE_TIMEOUT_MS, 'compress');
 }
 
 /** 从本地文件读取并压缩为 data URL */
@@ -162,10 +214,29 @@ export async function readCompressedImageFile(
   }
 }
 
-/** 保存失败时：压缩草稿内全部位图后再试 */
-export async function compressDraftImages(draft: AdminProjectDraft): Promise<void> {
+/** 草稿是否含超大未压缩图（Save 前主动压缩，避免点击无反应） */
+export function draftHasOversizedImages(draft: AdminProjectDraft, thresholdChars = 480_000): boolean {
+  const big = (url?: string | null) => !!url && url.startsWith('data:image/') && url.length > thresholdChars;
+  if (big(draft.heroImageDataUrl)) return true;
+  for (const sec of draft.detailSections) {
+    for (const blk of sec.blocks) {
+      if (blk._type !== 'sectionImageBlock') continue;
+      for (const im of blk.images) {
+        if (big(im.dataUrl)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+/** 保存前/失败时：压缩草稿内全部位图 */
+export async function compressDraftImages(
+  draft: AdminProjectDraft,
+  opts?: CompressOptions,
+): Promise<void> {
+  const o = opts ?? SAVE_COMPRESS_OPTS;
   if (draft.heroImageDataUrl?.startsWith('data:image/')) {
-    draft.heroImageDataUrl = await compressDataUrl(draft.heroImageDataUrl);
+    draft.heroImageDataUrl = await compressDataUrl(draft.heroImageDataUrl, o);
   }
   for (const sec of draft.detailSections) {
     for (const blk of sec.blocks) {
@@ -173,7 +244,7 @@ export async function compressDraftImages(draft: AdminProjectDraft): Promise<voi
       for (let i = 0; i < blk.images.length; i++) {
         const url = blk.images[i]?.dataUrl;
         if (url?.startsWith('data:image/')) {
-          blk.images[i] = { ...blk.images[i], dataUrl: await compressDataUrl(url) };
+          blk.images[i] = { ...blk.images[i], dataUrl: await compressDataUrl(url, o) };
         }
       }
     }
