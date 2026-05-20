@@ -416,13 +416,9 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     const heroInput = document.getElementById('np-hero') as HTMLInputElement | null;
     let heroImageDataUrl: string | null = null;
     const file = heroInput?.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      heroImageDataUrl = await new Promise((resolve) => {
-        const r = new FileReader();
-        r.onload = () => resolve(typeof r.result === 'string' ? r.result : null);
-        r.onerror = () => resolve(null);
-        r.readAsDataURL(file);
-      });
+    if (file) {
+      const { readCompressedImageFile } = await import('../../../scripts/admin-image-compress.ts');
+      heroImageDataUrl = await readCompressedImageFile(file);
     }
 
     const draft = createDraftFromModal({
