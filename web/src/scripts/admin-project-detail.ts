@@ -16,6 +16,11 @@ import {
   type DraftImageBlock,
   type SectionKey,
 } from './admin-project-draft.ts';
+import {
+  readCompressedImageFile,
+  compressDraftImages,
+  isImageFile,
+} from './admin-image-compress.ts';
 
 let draft: AdminProjectDraft | null = null;
 
@@ -435,7 +440,7 @@ function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftI
     let added = false;
     for (const file of files) {
       if (!isImageFile(file)) continue;
-      const dataUrl = await readFile(file);
+      const dataUrl = await readCompressedImageFile(file);
       if (dataUrl) {
         blk.images.push({ dataUrl });
         added = true;
@@ -530,18 +535,10 @@ function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string): v
   });
 }
 
-function isImageFile(file: File): boolean {
-  if (file.type.startsWith('image/')) return true;
-  return /\.(jpe?g|png|gif|webp|svg|bmp|heic|heif)$/i.test(file.name);
-}
-
-function readFile(file: File): Promise<string | null> {
-  return new Promise((resolve) => {
-    const r = new FileReader();
-    r.onload = () => resolve(typeof r.result === 'string' ? r.result : null);
-    r.onerror = () => resolve(null);
-    r.readAsDataURL(file);
-  });
+function isStorageQuotaError(err: unknown): boolean {
+  if (err instanceof DOMException && err.name === 'QuotaExceededError') return true;
+  if (err instanceof Error && /quota|exceeded/i.test(err.message)) return true;
+  return false;
 }
 
 /** 保存到列表前：若勾选首页轮播，把顺序压到比其它已选作品更小，使出现在 Carousel 最前 */
@@ -560,8 +557,47 @@ function saveQuiet(): void {
   try {
     upsertDraft(touchDraft(draft));
   } catch (err) {
+    if (!isStorageQuotaError(err)) {
+      console.error(err);
+      return;
+    }
+    void (async () => {
+      try {
+        await compressDraftImages(draft!);
+        upsertDraft(touchDraft(draft!));
+      } catch (e) {
+        console.warn('[cms] autosave after compress failed', e);
+      }
+    })();
+  }
+}
+
+/** 点 Save：若仍超限则压缩后重试并提示用户 */
+async function saveQuietWithRetry(): Promise<boolean> {
+  if (!draft) return false;
+  Object.assign(draft, collectBasicsFromDom());
+  syncBackgroundFromSections();
+  try {
+    upsertDraft(touchDraft(draft));
+    return true;
+  } catch (err) {
+    if (!isStorageQuotaError(err)) {
+      console.error(err);
+      alert('保存失败，请稍后重试。');
+      return false;
+    }
+  }
+  try {
+    await compressDraftImages(draft);
+    upsertDraft(touchDraft(draft));
+    alert('图片体积较大，已自动压缩后保存（页面上仍可按全宽大图展示）。');
+    return true;
+  } catch (err) {
     console.error(err);
-    alert('保存到浏览器本地失败，图片可能过大。请减少图片数量或尺寸后重试。');
+    alert(
+      '保存仍失败：图片总容量过大。请减少张数，或换用更短的长图；单张超长设计稿会自动压缩，但多张叠加仍可能超限。',
+    );
+    return false;
   }
 }
 
@@ -615,10 +651,11 @@ export function bootAdminProjectDetail(): void {
 
   renderHeroPreview();
 
-  $('#btn-save')?.addEventListener('click', () => {
+  $('#btn-save')?.addEventListener('click', async () => {
     if (!draft) return;
     bumpCarouselOrderIfShown(draft);
-    saveQuiet();
+    const ok = await saveQuietWithRetry();
+    if (!ok) return;
     window.location.href = '/admin/projects';
   });
 
@@ -644,7 +681,7 @@ export function bootAdminProjectDetail(): void {
     const inp = $('#f-hero-file') as HTMLInputElement;
     const file = inp.files?.[0];
     if (!file || !draft) return;
-    const url = await readFile(file);
+    const url = await readCompressedImageFile(file);
     draft.heroImageDataUrl = url;
     saveQuiet();
     renderHeroPreview();
