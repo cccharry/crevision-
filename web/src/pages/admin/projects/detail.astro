@@ -2,23 +2,23 @@
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 ---
 <AdminLayout title="Project details" activeNav="projects">
-  <div style="margin-bottom: 12px; font-size: 0.8125rem; color: var(--adm-muted);">
-    <a href="/admin/projects" style="color: inherit;">Projects</a>
-    <span aria-hidden="true"> · </span>
-    <span>Project Details</span>
-  </div>
+  <nav class="adm-crumb" aria-label="面包屑">
+    <a href="/admin/projects">Projects</a>
+    <span class="adm-crumb-sep" aria-hidden="true">&gt;</span>
+    <span class="adm-crumb-current">Project Details</span>
+  </nav>
 
   <div class="adm-detail-head">
-    <h1 class="adm-page-title" id="detail-heading" style="margin-bottom: 8px;">Project</h1>
-    <div class="adm-detail-toolbar">
-      <label class="adm-toolbar-toggle">
-        Display in Homepage Carousel
-        <span class="adm-switch">
+    <h1 class="adm-page-title adm-detail-heading" id="detail-heading">Project</h1>
+    <div class="adm-detail-head-controls">
+      <div class="adm-detail-toggle-row">
+        <span class="adm-detail-carousel-label">Display in Homepage Carousel</span>
+        <label class="adm-switch">
           <input type="checkbox" id="f-carousel" />
           <span class="adm-switch-slider"></span>
-        </span>
-      </label>
-      <button type="button" class="adm-btn adm-btn--outline" id="btn-remove-project">
+        </label>
+      </div>
+      <button type="button" class="adm-btn adm-btn--outline adm-btn-remove-project" id="btn-remove-project">
         <img
           src="/admin/icons/icn_backend_remove_project.svg"
           alt=""
@@ -36,7 +36,6 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
       <section class="adm-card">
         <div class="adm-section-head">
           <h2>Main Content</h2>
-          <button type="button" class="adm-btn adm-btn--primary" id="btn-save">Save</button>
         </div>
 
         <div class="adm-grid2">
@@ -117,6 +116,11 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         </div>
       </section>
 
+      <div class="adm-detail-page-footer">
+        <button type="button" class="adm-btn adm-btn--primary" id="btn-save">Save</button>
+        <button type="button" class="adm-btn adm-btn--outline" id="btn-detail-cancel">Cancel</button>
+      </div>
+
       <div id="sections-root"></div>
     </div>
 
@@ -135,25 +139,92 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 </AdminLayout>
 
 <style is:global>
+  .adm-crumb {
+    margin-bottom: 10px;
+    font-size: 0.8125rem;
+    color: var(--adm-muted);
+  }
+
+  .adm-crumb a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .adm-crumb a:hover {
+    color: var(--adm-text);
+  }
+
+  .adm-crumb-sep {
+    margin: 0 6px;
+    font-weight: 500;
+    color: var(--adm-muted);
+    text-decoration: none;
+  }
+
+  .adm-crumb-current {
+    color: var(--adm-muted);
+  }
+
   .adm-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    flex-wrap: wrap;
     margin-bottom: 20px;
   }
 
-  .adm-detail-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
+  .adm-detail-heading {
+    margin: 0;
+    flex: 1;
+    min-width: min(100%, 280px);
   }
 
-  .adm-toolbar-toggle {
+  .adm-detail-head-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .adm-detail-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .adm-detail-carousel-label {
     font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--adm-text);
-    cursor: pointer;
+    font-weight: 600;
+    color: var(--adm-purple);
+    white-space: nowrap;
+  }
+
+  .adm-btn.adm-btn--outline.adm-btn-remove-project {
+    color: #374151;
+  }
+
+  .adm-btn.adm-btn--outline.adm-btn-remove-project:hover {
+    color: #111827;
+    border-color: #d1d5db;
+    background: #f9fafb;
+  }
+
+  @media (max-width: 720px) {
+    .adm-detail-head {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .adm-detail-head-controls {
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .adm-detail-carousel-label {
+      white-space: normal;
+    }
   }
 
   .adm-detail-layout {
@@ -161,6 +232,16 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     grid-template-columns: minmax(0, 1fr) 280px;
     gap: 24px;
     align-items: start;
+  }
+
+  /** 与新建项目弹窗底部一致：独立于 Main Content 白卡片，右对齐 */
+  .adm-detail-page-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 28px;
+    padding: 0 2px;
   }
 
   .adm-detail-aside {
@@ -291,21 +372,213 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   }
 
   .adm-sec-picker-btn.is-used {
-    opacity: 0.42;
+    opacity: 1;
     cursor: not-allowed;
     pointer-events: none;
-    color: #9ca3af;
+    color: #a3a3a3;
   }
 
   .adm-sec-picker-btn.is-used .adm-sec-picker-icon img {
-    opacity: 0.85;
-    filter: grayscale(0.35);
+    opacity: 0.9;
+    filter: grayscale(1) brightness(0.92);
   }
 
-  .adm-section-pb .adm-pb-rule {
-    height: 1px;
+  /* 各 Section 卡片顶栏（与设计稿一致） */
+  .adm-sec-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .adm-sec-card-head-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .adm-sec-card-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    object-fit: contain;
+    display: block;
+  }
+
+  .adm-sec-card-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--adm-text);
+  }
+
+  .adm-sec-card-head-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .adm-sec-head-sep {
+    width: 1px;
+    height: 20px;
     background: var(--adm-border);
-    margin: 0 0 18px;
+    flex-shrink: 0;
+  }
+
+  .adm-sec-display-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .adm-sec-display-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--adm-purple);
+  }
+
+  .adm-btn.adm-btn--outline.adm-btn-sec-remove {
+    display: inline-flex;
+    align-items: center;
+    color: #374151;
+    gap: 6px;
+  }
+
+  .adm-btn.adm-btn--outline.adm-btn-sec-remove:hover {
+    color: #111827;
+    border-color: #d1d5db;
+    background: #f9fafb;
+  }
+
+  .adm-sec-remove-icon {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .adm-sec-card-divider {
+    height: 1px;
+    background: var(--adm-purple);
+    margin: 12px 0 18px;
+    border: none;
+  }
+
+  .adm-sec-block-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .adm-block-text,
+  .adm-block-img {
+    margin-bottom: 20px;
+  }
+
+  .adm-block-text-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .adm-block-text-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--adm-muted);
+  }
+
+  .adm-btn-text-block-remove {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .adm-section-editor textarea::placeholder,
+  .adm-section-editor input::placeholder {
+    color: #a3a3a3;
+  }
+
+  .adm-images-panel {
+    border: 1px solid var(--adm-border);
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .adm-images-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--adm-border);
+    background: #fff;
+  }
+
+  .adm-images-bar-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--adm-muted);
+  }
+
+  .adm-btn-add-images {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .adm-btn-add-images:hover {
+    opacity: 0.85;
+  }
+
+  .adm-btn-add-images:focus-visible {
+    outline: 2px solid var(--adm-purple);
+    outline-offset: 2px;
+  }
+
+  .adm-btn-add-images-plus {
+    font-size: 1.125rem;
+    line-height: 1;
+    font-weight: 500;
+  }
+
+  .adm-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 14px;
+    min-height: 100px;
+    background: #fafafa;
+  }
+
+  .adm-images-grid.is-empty {
+    min-height: 120px;
+  }
+
+  .adm-img-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .adm-btn-img-tile-remove {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    align-self: flex-start;
   }
 
   .adm-section-pb .adm-pb-ta {

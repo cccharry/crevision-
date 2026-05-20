@@ -14,7 +14,7 @@ export type SectionKey =
   | 'implementDelivery';
 
 /**
- * 右侧 Add Section 列表顺序。
+ * 右侧 Add Section 列表顺序（含项目背景元数据；右侧可选列表见 SECTION_PICKER_OPTIONS）。
  * iconSrc：对应 Design/backend 下 SVG，已复制到 web/public/admin/sections/（URL 安全文件名）。
  * 项目背景暂无单独图标，iconSrc 为 null 时界面用文案占位。
  */
@@ -56,6 +56,9 @@ export const SECTION_OPTIONS: ReadonlyArray<{
     iconSrc: '/admin/sections/implement-delivery.svg',
   },
 ];
+
+/** 右侧可选添加的板块（不含项目背景：主内容区默认必有，不在此列表） */
+export const SECTION_PICKER_OPTIONS = SECTION_OPTIONS.filter((o) => o.key !== 'projectBackground');
 
 export type BilingualShort = { zh?: string; en?: string };
 export type BilingualText = { zh?: string; en?: string };

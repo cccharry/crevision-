@@ -171,48 +171,6 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     margin-top: 8px;
   }
 
-  .adm-switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .adm-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .adm-switch-slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: #d1d5db;
-    border-radius: 999px;
-    transition: background 0.2s;
-  }
-
-  .adm-switch-slider::before {
-    content: '';
-    position: absolute;
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background: white;
-    border-radius: 50%;
-    transition: transform 0.2s;
-  }
-
-  .adm-switch input:checked + .adm-switch-slider {
-    background: var(--adm-purple);
-  }
-
-  .adm-switch input:checked + .adm-switch-slider::before {
-    transform: translateX(20px);
-  }
-
   .adm-carousel-strip {
     display: flex;
     gap: 16px;
@@ -327,8 +285,11 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
   }
 
   function render(): void {
+    // 最近保存/编辑的在前（与详情页点「保存」后回到列表的预期一致）
     const projects = loadAllDrafts().sort(
-      (a, b) => a.projectsListOrder - b.projectsListOrder || a.createdAt.localeCompare(b.createdAt)
+      (a, b) =>
+        (b.updatedAt || '').localeCompare(a.updatedAt || '') ||
+        (b.createdAt || '').localeCompare(a.createdAt || '')
     );
 
     if (!grid || !empty) return;

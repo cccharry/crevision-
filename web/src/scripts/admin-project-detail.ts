@@ -9,6 +9,7 @@ import {
   touchDraft,
   randomKey,
   SECTION_OPTIONS,
+  SECTION_PICKER_OPTIONS,
   type AdminProjectDraft,
   type DraftDetailSection,
   type DraftTextBlock,
@@ -116,7 +117,7 @@ function renderSectionPicker(): void {
   if (!picker || !draft) return;
   picker.innerHTML = '';
 
-  SECTION_OPTIONS.forEach((opt) => {
+  SECTION_PICKER_OPTIONS.forEach((opt) => {
     const used = draft!.detailSections.some((s) => s.sectionKey === opt.key);
     const li = document.createElement('li');
     li.style.marginBottom = '8px';
@@ -166,28 +167,35 @@ function renderProjectBackgroundCard(sec: DraftDetailSection): HTMLElement {
   card.className = 'adm-card adm-section-editor adm-section-pb';
   card.dataset.sectionInstance = sec._key;
 
+  const pbToggleId = `pb-toggle-${sec._key}`;
   card.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
-      <h3 style="margin:0;font-size:1.125rem;font-weight:700;">项目背景</h3>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;color:var(--adm-muted);">
-          Display
+    <div class="adm-sec-card-head">
+      <div class="adm-sec-card-head-left">
+        <h3 class="adm-sec-card-title">项目背景</h3>
+      </div>
+      <div class="adm-sec-card-head-right">
+        <button type="button" class="adm-btn adm-btn--outline adm-btn-sec-remove" data-pb-remove="${esc(sec._key)}">
+          <img src="/admin/icons/icn_backend_remove_project.svg" alt="" width="16" height="16" class="adm-sec-remove-icon" />
+          Remove Section
+        </button>
+        <span class="adm-sec-head-sep" aria-hidden="true"></span>
+        <label class="adm-sec-display-toggle" for="${esc(pbToggleId)}">
           <span class="adm-switch">
-            <input type="checkbox" data-pb-toggle="${esc(sec._key)}" ${sec.enabled ? 'checked' : ''} />
+            <input type="checkbox" id="${esc(pbToggleId)}" data-pb-toggle="${esc(sec._key)}" ${sec.enabled ? 'checked' : ''} />
             <span class="adm-switch-slider"></span>
           </span>
+          <span class="adm-sec-display-label">Display</span>
         </label>
-        <button type="button" class="adm-btn adm-btn--outline" data-pb-remove="${esc(sec._key)}">Remove Section</button>
       </div>
     </div>
-    <div class="adm-pb-rule"></div>
+    <div class="adm-sec-card-divider"></div>
     <div class="adm-field">
-      <label class="adm-label">EN</label>
-      <textarea class="adm-textarea adm-pb-ta" data-pb-field="en" rows="6"></textarea>
+      <label class="adm-label">EN Description</label>
+      <textarea class="adm-textarea adm-pb-ta" data-pb-field="en" rows="6" placeholder="请输入"></textarea>
     </div>
     <div class="adm-field" style="margin-bottom:0">
-      <label class="adm-label">CN</label>
-      <textarea class="adm-textarea adm-pb-ta" data-pb-field="zh" rows="6"></textarea>
+      <label class="adm-label">CN Description</label>
+      <textarea class="adm-textarea adm-pb-ta" data-pb-field="zh" rows="6" placeholder="请输入"></textarea>
     </div>`;
 
   const taEn = card.querySelector('[data-pb-field="en"]') as HTMLTextAreaElement | null;
@@ -225,27 +233,37 @@ function renderProjectBackgroundCard(sec: DraftDetailSection): HTMLElement {
 
 function renderStandardSectionCard(sec: DraftDetailSection): HTMLElement {
   const meta = SECTION_OPTIONS.find((o) => o.key === sec.sectionKey);
-  const title = meta ? `${meta.label} · ${meta.labelZh}` : sec.sectionKey;
+  const titleEn = meta?.label ?? sec.sectionKey;
+  const iconSrc = meta?.iconSrc ?? '';
+  const toggleId = `sec-toggle-${sec._key}`;
 
   const card = document.createElement('div');
   card.className = 'adm-card adm-section-editor';
   card.dataset.sectionKey = sec._key;
   card.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-      <h3 style="margin:0;font-size:1rem;">${esc(title)}</h3>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;color:var(--adm-muted);">
-          Display
+    <div class="adm-sec-card-head">
+      <div class="adm-sec-card-head-left">
+        ${iconSrc ? `<img class="adm-sec-card-icon" src="${esc(iconSrc)}" alt="" width="24" height="24" />` : ''}
+        <h3 class="adm-sec-card-title">${esc(titleEn)}</h3>
+      </div>
+      <div class="adm-sec-card-head-right">
+        <button type="button" class="adm-btn adm-btn--outline adm-btn-sec-remove" data-remove-sec="${esc(sec._key)}">
+          <img src="/admin/icons/icn_backend_remove_project.svg" alt="" width="16" height="16" class="adm-sec-remove-icon" />
+          Remove Section
+        </button>
+        <span class="adm-sec-head-sep" aria-hidden="true"></span>
+        <label class="adm-sec-display-toggle" for="${esc(toggleId)}">
           <span class="adm-switch">
-            <input type="checkbox" data-sec-toggle="${esc(sec._key)}" ${sec.enabled ? 'checked' : ''} />
+            <input type="checkbox" id="${esc(toggleId)}" data-sec-toggle="${esc(sec._key)}" ${sec.enabled ? 'checked' : ''} />
             <span class="adm-switch-slider"></span>
           </span>
+          <span class="adm-sec-display-label">Display</span>
         </label>
-        <button type="button" class="adm-btn adm-btn--outline" data-remove-sec="${esc(sec._key)}">Remove Section</button>
       </div>
     </div>
+    <div class="adm-sec-card-divider"></div>
     <div class="adm-blocks" data-blocks="${esc(sec._key)}"></div>
-    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+    <div class="adm-sec-block-actions">
       <button type="button" class="adm-btn adm-btn--outline" data-add-text="${esc(sec._key)}">+ Text block</button>
       <button type="button" class="adm-btn adm-btn--outline" data-add-img="${esc(sec._key)}">+ Image group</button>
     </div>`;
@@ -314,21 +332,24 @@ function renderSectionCard(sec: DraftDetailSection): HTMLElement {
 function renderTextBlock(sectionKey: string, block: DraftTextBlock): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'adm-block adm-block-text';
-  wrap.style.marginBottom = '16px';
-  wrap.style.padding = '12px';
-  wrap.style.border = '1px dashed var(--adm-border)';
-  wrap.style.borderRadius = '6px';
   wrap.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <strong style="font-size:0.8125rem;">Text block</strong>
-      <button type="button" class="adm-btn adm-btn--outline" style="font-size:0.75rem;padding:4px 8px;" data-del-block="${esc(block._key)}">Remove</button>
+    <div class="adm-block-text-head">
+      <span class="adm-block-text-label">Text block</span>
+      <button type="button" class="adm-btn adm-btn--outline adm-btn-text-block-remove" data-del-block="${esc(block._key)}">Remove</button>
     </div>
-    <div class="adm-grid2">
-      <div class="adm-field"><label class="adm-label">Title EN</label><input class="adm-input" data-part="title-en" value="${esc(block.title.en || '')}" /></div>
-      <div class="adm-field"><label class="adm-label">Title CN</label><input class="adm-input" data-part="title-zh" value="${esc(block.title.zh || '')}" /></div>
+    <div class="adm-field">
+      <label class="adm-label">EN Description</label>
+      <textarea class="adm-textarea" data-part="body-en" rows="5" placeholder="请输入"></textarea>
     </div>
-    <div class="adm-field"><label class="adm-label">Body EN</label><textarea class="adm-textarea" data-part="body-en" rows="3">${esc(block.body.en || '')}</textarea></div>
-    <div class="adm-field"><label class="adm-label">Body CN</label><textarea class="adm-textarea" data-part="body-zh" rows="3">${esc(block.body.zh || '')}</textarea></div>`;
+    <div class="adm-field" style="margin-bottom:0">
+      <label class="adm-label">CN Description</label>
+      <textarea class="adm-textarea" data-part="body-zh" rows="5" placeholder="请输入"></textarea>
+    </div>`;
+
+  const taEn = wrap.querySelector('[data-part="body-en"]') as HTMLTextAreaElement | null;
+  const taZh = wrap.querySelector('[data-part="body-zh"]') as HTMLTextAreaElement | null;
+  if (taEn) taEn.value = block.body.en || '';
+  if (taZh) taZh.value = block.body.zh || '';
 
   const sync = () => {
     const sec = draft!.detailSections.find((s) => s._key === sectionKey);
@@ -336,14 +357,13 @@ function renderTextBlock(sectionKey: string, block: DraftTextBlock): HTMLElement
       (x) => x._key === block._key && x._type === 'sectionTextBlock'
     ) as DraftTextBlock | undefined;
     if (!b) return;
-    b.title.en = (wrap.querySelector('[data-part="title-en"]') as HTMLInputElement)?.value ?? '';
-    b.title.zh = (wrap.querySelector('[data-part="title-zh"]') as HTMLInputElement)?.value ?? '';
-    b.body.en = (wrap.querySelector('[data-part="body-en"]') as HTMLTextAreaElement)?.value ?? '';
-    b.body.zh = (wrap.querySelector('[data-part="body-zh"]') as HTMLTextAreaElement)?.value ?? '';
+    b.body.en = taEn?.value ?? '';
+    b.body.zh = taZh?.value ?? '';
     saveQuiet();
   };
 
-  wrap.querySelectorAll('input, textarea').forEach((el) => el.addEventListener('input', sync));
+  taEn?.addEventListener('input', sync);
+  taZh?.addEventListener('input', sync);
 
   wrap.querySelector('[data-del-block]')?.addEventListener('click', () => {
     const sec = draft!.detailSections.find((s) => s._key === sectionKey);
@@ -359,55 +379,60 @@ function renderTextBlock(sectionKey: string, block: DraftTextBlock): HTMLElement
 function renderImageBlock(sectionKey: string, block: DraftImageBlock): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'adm-block adm-block-img';
-  wrap.style.marginBottom = '16px';
-  wrap.style.padding = '12px';
-  wrap.style.border = '1px dashed var(--adm-border)';
-  wrap.style.borderRadius = '6px';
 
   const imgsHtml = block.images
     .map(
       (im, i) => `
-    <div class="adm-upload-slot-inner">
+    <div class="adm-img-tile" data-img-tile="${i}">
       <div class="adm-upload-frame adm-upload-frame--3-2">
         ${
           im.dataUrl
             ? `<img src="${esc(im.dataUrl)}" class="adm-upload-cover" alt="" />`
-            : `<div class="adm-upload-placeholder">No image</div>`
+            : `<div class="adm-upload-placeholder"></div>`
         }
       </div>
-      <input type="file" accept="image/*" data-img-idx="${i}" data-blk="${esc(block._key)}" style="margin-top:8px;" />
-      <button type="button" class="adm-btn adm-btn--outline" style="margin-top:8px;font-size:0.75rem;" data-remove-img="${i}" data-blk="${esc(block._key)}">Remove image</button>
+      <button type="button" class="adm-btn adm-btn--outline adm-btn-img-tile-remove" data-remove-img="${i}" data-blk="${esc(block._key)}">Remove</button>
     </div>`
     )
     .join('');
 
+  const fileInputId = `img-file-${block._key}`;
   wrap.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <strong style="font-size:0.8125rem;">Image group</strong>
-      <div>
-        <button type="button" class="adm-btn adm-btn--outline" style="font-size:0.75rem;margin-right:8px;" data-add-img-slot="${esc(block._key)}">+ Add image</button>
-        <button type="button" class="adm-btn adm-btn--outline" style="font-size:0.75rem;" data-del-block-img="${esc(block._key)}">Remove group</button>
-      </div>
+    <div class="adm-block-text-head">
+      <span class="adm-block-text-label">Image group</span>
+      <button type="button" class="adm-btn adm-btn--outline adm-btn-text-block-remove" data-del-block-img="${esc(block._key)}">Remove group</button>
     </div>
-    <div data-img-list="${esc(block._key)}">${imgsHtml || '<p style="color:var(--adm-muted);font-size:0.875rem;">No images yet.</p>'}</div>`;
+    <div class="adm-images-panel">
+      <div class="adm-images-bar">
+        <span class="adm-images-bar-label">Images</span>
+        <button type="button" class="adm-btn-add-images" data-trigger-img-file="${esc(block._key)}" aria-controls="${esc(fileInputId)}">
+          <span class="adm-btn-add-images-plus" aria-hidden="true">+</span>
+          Add Image
+        </button>
+        <input type="file" id="${esc(fileInputId)}" class="adm-hero-file-input" accept="image/*" multiple data-img-file="${esc(block._key)}" />
+      </div>
+      <div class="adm-images-grid${block.images.length === 0 ? ' is-empty' : ''}" data-img-list="${esc(block._key)}">${imgsHtml}</div>
+    </div>`;
 
-  wrap.querySelectorAll('input[type="file"]').forEach((inp) => {
-    inp.addEventListener('change', async () => {
-      const blkKey = (inp as HTMLInputElement).dataset.blk;
-      const idx = Number((inp as HTMLInputElement).dataset.imgIdx);
-      const file = (inp as HTMLInputElement).files?.[0];
-      const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-      const blk = sec?.blocks.find((b) => b._key === blkKey && b._type === 'sectionImageBlock') as
-        | DraftImageBlock
-        | undefined;
-      if (!blk || !file || !file.type.startsWith('image/')) return;
+  wrap.querySelector('[data-trigger-img-file]')?.addEventListener('click', () => {
+    document.getElementById(fileInputId)?.click();
+  });
+
+  wrap.querySelector('[data-img-file]')?.addEventListener('change', async () => {
+    const inp = wrap.querySelector('[data-img-file]') as HTMLInputElement | null;
+    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
+    const blk = sec?.blocks.find((b) => b._key === block._key && b._type === 'sectionImageBlock') as
+      | DraftImageBlock
+      | undefined;
+    if (!inp?.files?.length || !blk) return;
+    for (const file of Array.from(inp.files)) {
+      if (!file.type.startsWith('image/')) continue;
       const dataUrl = await readFile(file);
-      if (!dataUrl) return;
-      while (blk.images.length <= idx) blk.images.push({});
-      blk.images[idx] = { ...blk.images[idx], dataUrl };
-      saveQuiet();
-      renderSections();
-    });
+      if (dataUrl) blk.images.push({ dataUrl });
+    }
+    inp.value = '';
+    saveQuiet();
+    renderSections();
   });
 
   wrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
@@ -421,15 +446,6 @@ function renderImageBlock(sectionKey: string, block: DraftImageBlock): HTMLEleme
       saveQuiet();
       renderSections();
     });
-  });
-
-  wrap.querySelector('[data-add-img-slot]')?.addEventListener('click', () => {
-    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-    const blk = sec?.blocks.find((b) => b._key === block._key) as DraftImageBlock | undefined;
-    if (!blk || blk._type !== 'sectionImageBlock') return;
-    blk.images.push({});
-    saveQuiet();
-    renderSections();
   });
 
   wrap.querySelector('[data-del-block-img]')?.addEventListener('click', () => {
@@ -452,6 +468,15 @@ function readFile(file: File): Promise<string | null> {
   });
 }
 
+/** 保存到列表前：若勾选首页轮播，把顺序压到比其它已选作品更小，使出现在 Carousel 最前 */
+function bumpCarouselOrderIfShown(project: AdminProjectDraft): void {
+  if (!project.showOnHomeCarousel) return;
+  const list = loadAllDrafts();
+  const others = list.filter((p) => p.id !== project.id && p.showOnHomeCarousel);
+  const minO = others.length ? Math.min(...others.map((p) => p.homeCarouselOrder)) : null;
+  project.homeCarouselOrder = minO === null ? 0 : minO - 1;
+}
+
 function saveQuiet(): void {
   if (!draft) return;
   Object.assign(draft, collectBasicsFromDom());
@@ -472,17 +497,21 @@ export function bootAdminProjectDetail(): void {
   }
   draft = d;
 
+  // 项目背景为主内容区默认首块；无则从顶层 background 迁移或新建空块
   const hasPb = draft.detailSections.some((s) => s.sectionKey === 'projectBackground');
-  const bgLegacy =
-    (draft.background.zh && draft.background.zh.trim()) ||
-    (draft.background.en && draft.background.en.trim());
-  if (!hasPb && bgLegacy) {
-    draft.detailSections.push({
+  if (!hasPb) {
+    const hasLegacyBg =
+      (draft.background.zh && draft.background.zh.trim()) ||
+      (draft.background.en && draft.background.en.trim());
+    const plainBody = hasLegacyBg
+      ? { zh: draft.background.zh || '', en: draft.background.en || '' }
+      : { zh: '', en: '' };
+    draft.detailSections.unshift({
       _key: randomKey(),
       sectionKey: 'projectBackground',
       enabled: true,
       blocks: [],
-      plainBody: { zh: draft.background.zh || '', en: draft.background.en || '' },
+      plainBody,
     });
     upsertDraft(touchDraft(draft));
   }
@@ -507,8 +536,13 @@ export function bootAdminProjectDetail(): void {
 
   $('#btn-save')?.addEventListener('click', () => {
     if (!draft) return;
+    bumpCarouselOrderIfShown(draft);
     saveQuiet();
-    alert('已保存（若已配置 Cloudflare KV，将自动同步到线上）');
+    window.location.href = '/admin/projects';
+  });
+
+  $('#btn-detail-cancel')?.addEventListener('click', () => {
+    window.location.href = '/admin/projects';
   });
 
   $('#btn-remove-project')?.addEventListener('click', () => {
