@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cre-Vision | Projects</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;1,300;1,600&family=Noto+Sans+SC:wght@300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cre-purple: #B63FFF;
+            --padding-x: calc(200 / 1920 * 100vw);
+            --footer-h: calc(118 / 1920 * 100vw);
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            overflow-x: hidden;
+        }
+        .text-cn {
+            font-family: 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-weight: 300;
+        }
+
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 104px;
+            padding: 0 var(--padding-x);
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; z-index: 1000;
+        }
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .logo-text { display: flex; flex-direction: column; gap: 0; line-height: 1; }
+        .site-logo-img { width: 64px; height: 64px; display: block; flex-shrink: 0; }
+        .logo-main-text { font-size: 22px; font-weight: 400; line-height: 1; }
+        .logo-sub-text {
+            font-size: 12px; font-weight: 200; color: #888;
+            letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
+        }
+        .nav-right { display: flex; align-items: center; gap: 32px; }
+        .nav-item {
+            position: relative;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            text-transform: uppercase;
+            font-weight: 300;
+            padding: 2px 4px;
+        }
+        .nav-item.active { font-weight: 500; }
+        .nav-item.active::before {
+            content: "";
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--cre-purple);
+            z-index: -1;
+        }
+        .btn-contact {
+            background: var(--cre-purple); color: #fff; padding: 8px 24px;
+            border-radius: 4px; font-size: 14px; text-transform: uppercase;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif; font-weight: 500; border: none; cursor: pointer;
+        }
+        .nav-social {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 32px;
+        }
+        .nav-social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: opacity 0.3s;
+        }
+        .nav-social-link:hover { opacity: 0.8; }
+        .nav-social-link svg { width: 24px; height: 24px; display: block; }
+        .nav-burger-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .nav-burger-btn img { width: 24px; height: 24px; display: block; }
+
+        .projects-hero {
+            position: relative;
+            background: #000;
+            padding: 138px var(--padding-x) 56px;
+            overflow: hidden;
+        }
+        .projects-hero-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .projects-title {
+            margin: 0;
+            font-size: 52px;
+            line-height: 1;
+            font-style: italic;
+            font-weight: 300;
+            text-transform: capitalize;
+        }
+        .projects-underline {
+            width: 52px;
+            height: 4px;
+            background: var(--cre-purple);
+            margin-top: 14px;
+        }
+        .hero-star {
+            position: absolute;
+            z-index: 1;
+        }
+        .hero-star img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(182, 63, 255, 0.85));
+        }
+        .hero-star.star-a { right: 29vw; top: 132px; width: 70px; height: 70px; }
+        .hero-star.star-b { right: 9vw; top: 156px; width: 122px; height: 122px; }
+
+        .projects-main {
+            background: #ECECEC;
+            color: #222;
+            padding: 28px var(--padding-x) 84px;
+        }
+        .projects-grid {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 40px 10px;
+        }
+        .project-card {
+            min-width: 0;
+        }
+        .project-thumb {
+            width: 100%;
+            aspect-ratio: 1 / 0.82;
+            background: #D0D0D0;
+            margin-bottom: 14px;
+        }
+        .project-name {
+            margin: 0 0 8px;
+            font-size: 26px;
+            line-height: 1.2;
+            color: #1E1E1E;
+        }
+        .project-tag {
+            display: inline-block;
+            background: var(--cre-purple);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            margin-bottom: 10px;
+        }
+        .project-desc {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.75;
+            color: #7E7E7E;
+        }
+        .project-desc-cn {
+            margin: 6px 0 0;
+            font-size: 14px;
+            line-height: 1.75;
+            color: #7E7E7E;
+        }
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            color: #B63FFF;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        footer {
+            background: #000;
+            min-height: var(--footer-h);
+            padding: 20px var(--padding-x);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+        }
+        .footer-info {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            color: #fff;
+            line-height: 1.5;
+            text-align: right;
+        }
+        .footer-heading {
+            font-size: 16px;
+            font-weight: 700;
+            display: block;
+        }
+        .footer-email {
+            font-size: 16px;
+            font-weight: 400;
+            display: block;
+            margin-top: 8px;
+        }
+        .social-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .social-pill {
+            background: #2A2A2A;
+            border-radius: 50px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 160px;
+        }
+        .social-pill:hover { background: #3A3A3A; }
+        a.social-pill { text-decoration: none; color: inherit; }
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .social-icon svg { width: 24px; height: 24px; }
+        .social-pill span {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            padding: 0 16px 40px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .mobile-menu.is-open { display: flex; }
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+            padding: 0 4px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .mobile-menu-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .mobile-menu-close img { width: 24px; height: 24px; display: block; }
+        .mobile-menu-stack {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            min-height: 0;
+            width: 100%;
+            gap: 24px;
+            padding: 40px 0 24px;
+            box-sizing: border-box;
+        }
+        .mobile-menu .mobile-menu-body {
+            position: static !important;
+            inset: auto !important;
+            top: auto !important;
+            left: auto !important;
+            width: 100% !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+            z-index: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            gap: 0 !important;
+        }
+        .mobile-menu-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
+            flex: 0 0 auto;
+        }
+        .mobile-menu-link {
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 22px;
+            font-weight: 300;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+            height: 68px;
+            min-height: 68px;
+            padding: 0 12px;
+            margin: 0;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mobile-menu-link .mobile-menu-label {
+            position: relative;
+            display: inline-block;
+            z-index: 1;
+        }
+        .mobile-menu-link.active .mobile-menu-label {
+            font-weight: 500;
+        }
+        .mobile-menu-link.active .mobile-menu-label::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            right: -8px;
+            bottom: 2px;
+            height: 8px;
+            background: var(--cre-purple);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .mobile-menu-cta-wrap {
+            flex-shrink: 0;
+            width: 100%;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: stretch;
+            box-sizing: border-box;
+        }
+        .mobile-menu-stack .mobile-menu-cta {
+            flex-shrink: 0;
+            width: 100%;
+            margin: 0;
+            height: 48px;
+            min-height: 48px;
+            padding: 0 24px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cre-purple);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            text-align: center;
+        }
+        .mobile-menu-social {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 0;
+        }
+        .mobile-menu-social .nav-social-link {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        .mobile-menu-social .nav-social-link svg {
+            width: 48px;
+            height: 48px;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+
+            .contact-success-overlay {
+                align-items: flex-start;
+                padding: 286px 16px 24px;
+            }
+            .contact-success-wrap {
+                width: 100%;
+                gap: 14px;
+            }
+            .contact-success-card {
+                padding: 16px 14px 18px;
+            }
+            .contact-success-plane {
+                width: 145px;
+                top: -42px;
+                right: -8px;
+            }
+            .contact-success-title {
+                font-size: 52px;
+            }
+            .contact-success-cn-highlight {
+                margin-top: 6px;
+                font-size: 16px;
+                font-weight: 700;
+                padding: 3px 10px;
+            }
+            .contact-success-reply {
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.35;
+                margin-top: 10px;
+            }
+            .contact-success-confirm {
+                width: 100%;
+                min-width: 0;
+                font-size: 34px;
+            }
+
+
+            /* Contact 弹窗（手机）：留白、标题紫条贴近文案、发送按钮整行居中 */
+            .contact-modal-overlay {
+                align-items: flex-start;
+                padding: 282px 20px 24px;
+                box-sizing: border-box;
+            }
+            .contact-modal-panel {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .contact-modal-header {
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 18px;
+            }
+            .contact-modal-title {
+                flex: 0 1 auto;
+                width: fit-content;
+                max-width: calc(100% - 48px);
+                font-size: 28px;
+                gap: 6px;
+                flex-wrap: wrap;
+                line-height: 1.15;
+            }
+            .contact-modal-title::after {
+                left: 0;
+                right: 0;
+                bottom: 2px;
+                height: 9px;
+                border-radius: 2px;
+            }
+            .contact-modal-title em {
+                font-size: 15px;
+                line-height: 1.25;
+                white-space: normal;
+            }
+            .contact-modal-close {
+                font-size: 34px;
+                margin-left: 0;
+                flex-shrink: 0;
+                align-self: flex-start;
+            }
+            .contact-modal-body {
+                gap: 14px;
+            }
+            .contact-input,
+            .contact-textarea {
+                font-size: 15px;
+            }
+            .contact-input-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .contact-message-row {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .contact-textarea {
+                min-height: 120px;
+            }
+            .contact-send-btn {
+                width: 100%;
+                height: 48px;
+                margin-top: 0;
+                font-size: 18px;
+                font-weight: 500;
+                gap: 8px;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                padding: 0 16px;
+            }
+            .contact-send-btn.is-disabled { box-shadow: none; }
+            .contact-send-divider { display: inline; }
+            .contact-send-icon {
+                width: 22px;
+                height: 22px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 22px;
+            }
+            .contact-send-icon img {
+                width: 22px;
+                height: 22px;
+            }
+
+            :root { --padding-x: 20px; }
+            nav {
+                height: 72px;
+                padding: 0 20px;
+            }
+            .nav-right { display: none !important; }
+            .nav-burger-btn { display: flex; }
+            .site-logo-img { width: 40px; height: 40px; }
+            /* 手机端：logo 与旁侧文字间隔 4px */
+            nav .logo-group,
+            .mobile-menu-header .logo-group {
+                gap: 4px;
+            }
+            /* 手机顶栏 / 全屏 Menu：Cre-Vision 为 Montserrat 16px Medium */
+            nav .logo-main-text,
+            .mobile-menu-header .logo-main-text {
+                font-size: 16px;
+                font-weight: 500; /* Montserrat Medium */
+            }
+            /* 手机顶栏 / 全屏 Menu：UX&UI design 为 Montserrat Light 9px，字间距 17% */
+            nav .logo-sub-text,
+            .mobile-menu-header .logo-sub-text {
+                font-size: 9px;
+                font-weight: 300; /* Montserrat Light */
+                letter-spacing: 0.17em;
+            }
+
+            .projects-hero {
+                padding: 96px 20px 28px;
+            }
+            .projects-title {
+                font-size: 40px;
+            }
+            .projects-underline {
+                width: 40px;
+                margin-top: 10px;
+            }
+            /* 小星星靠右，避免遮住标题 “Projects” */
+            .hero-star.star-a { right: 4px; top: 96px; width: 54px; height: 54px; }
+            .hero-star.star-b { right: 10px; top: 132px; width: 82px; height: 82px; }
+
+            .projects-main {
+                padding: 48px 20px 60px;
+            }
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .project-thumb {
+                width: 100%;
+                aspect-ratio: 4 / 3;
+                min-height: 180px;
+                margin-bottom: 16px;
+            }
+            .project-name {
+                font-size: 20px;
+                margin: 0 0 8px;
+            }
+            .project-tag {
+                font-size: 11px;
+                padding: 4px 12px;
+                margin-bottom: 12px;
+            }
+            .project-desc,
+            .project-desc-cn {
+                font-size: 14px;
+                line-height: 1.75;
+                color: #888;
+            }
+            .project-desc { margin: 0; }
+            .project-desc-cn { margin: 10px 0 0; }
+            .project-link {
+                margin-top: 12px;
+                font-size: 16px;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 24px;
+                padding: 32px 20px;
+            }
+            .footer-info { text-align: left; }
+            .social-btns { width: 100%; }
+            .social-pill {
+                width: 100%;
+                box-sizing: border-box;
+                min-width: unset;
+            }
+        }
+    
+        .contact-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .contact-modal-overlay.is-open { display: flex; }
+        .contact-modal-panel {
+            width: min(760px, 100%);
+            color: #fff;
+        }
+        .contact-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .contact-modal-title {
+            margin: 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 50px;
+            font-style: italic;
+            font-weight: 600;
+            line-height: 1;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+        .contact-modal-title::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 8%;
+            bottom: 4px;
+            height: 26px;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            z-index: -1;
+        }
+        .contact-modal-title em {
+            font-size: 36px;
+            font-style: normal;
+            font-weight: 300;
+        }
+        .contact-modal-close {
+            border: none;
+            background: none;
+            color: #fff;
+            font-size: 36px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 18px;
+        }
+        .contact-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .contact-input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .contact-input,
+        .contact-textarea {
+            width: 100%;
+            border: none;
+            border-radius: 0;
+            background: #F3F3F3;
+            color: #212121;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+            padding: 12px 14px;
+            outline: none;
+        }
+        .contact-input::placeholder,
+        .contact-textarea::placeholder { color: #9A9A9A; }
+        .contact-message-row {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+        }
+        .contact-textarea {
+            min-height: 128px;
+            resize: none;
+        }
+        .contact-send-btn {
+            width: 190px;
+            border: none;
+            border-radius: 0;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            color: #fff;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px 16px;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease, transform 0.12s ease, filter 0.2s ease;
+        }
+        .contact-send-icon { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 30px; }
+        .contact-send-icon img { width: 30px; height: 30px; display: block; }
+        .contact-send-label-cn { white-space: nowrap; }
+        .contact-send-divider { display: none; }
+        .contact-send-btn.is-disabled {
+            background: linear-gradient(90deg, #D49AF6 0%, #C57FEB 100%);
+            color: rgba(255, 255, 255, 0.78);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .contact-send-btn.is-disabled .contact-send-icon,
+        .contact-send-btn.is-disabled .contact-send-label-en,
+        .contact-send-btn.is-disabled .contact-send-label-cn {
+            opacity: 0.85;
+        }
+        .contact-send-btn:not(.is-disabled):active {
+            transform: translateY(1px);
+            filter: brightness(0.95);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .contact-send-btn:not(.is-disabled):hover {
+                box-shadow: 0 10px 22px rgba(182, 63, 255, 0.48);
+            }
+        }
+
+        /* 手机 Contact：邮箱/电话上下排；发送按钮与弹窗同宽；图标与文字横向（覆盖上方桌面样式） */
+        @media (max-width: 480px) {
+            .contact-modal-body .contact-input-row {
+                display: flex;
+                flex-direction: column;
+                grid-template-columns: none;
+                gap: 10px;
+            }
+            .contact-modal-body .contact-message-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .contact-modal-body .contact-textarea {
+                min-height: 120px;
+            }
+            .contact-modal-body .contact-send-btn {
+                width: 100%;
+                max-width: none;
+                box-sizing: border-box;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+
+    
+        .contact-success-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .contact-success-overlay.is-open { display: flex; }
+        .contact-success-wrap {
+            width: min(540px, 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .contact-success-card {
+            width: 100%;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            padding: 18px 18px 20px;
+            position: relative;
+            color: #fff;
+        }
+        .contact-success-plane {
+            position: absolute;
+            width: 180px;
+            height: auto;
+            right: -10px;
+            top: -44px;
+            pointer-events: none;
+        }
+        .contact-success-title {
+            margin: 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 54px;
+            line-height: 0.95;
+            font-style: italic;
+            font-weight: 600;
+            color: #fff;
+        }
+        .contact-success-cn-highlight {
+            display: inline-block;
+            margin-top: 8px;
+            background: #f3f3f3;
+            color: #A73FFF;
+            padding: 4px 12px;
+            font-family: 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .contact-success-reply {
+            margin: 12px 0 0;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.45;
+            color: #fff;
+        }
+        .contact-success-confirm {
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #B63FFF 0%, #B04AF3 100%);
+            color: #fff;
+            height: 48px;
+            min-width: 168px;
+            padding: 0 24px;
+            font-family: 'Montserrat', 'Noto Sans SC', 'Source Han Sans CN', 'Source Han Sans SC', sans-serif;
+            font-size: 26px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo-group" aria-label="返回首页">
+            <img src="Design/logo_2.svg" alt="Cre-Vision logo" class="site-logo-img" width="64" height="64">
+            <div class="logo-text">
+                <span class="logo-main-text">Cre-Vision</span>
+                <span class="logo-sub-text">UX&UI design</span>
+            </div>
+        </a>
+        <div class="nav-right">
+            <a href="index.html" class="nav-item">Home</a>
+            <span class="nav-item active">Projects</span>
+            <a href="about.html" class="nav-item">About</a>
+            <button class="btn-contact" type="button">Contact</button>
+            <div class="nav-social">
+                <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Behance">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                        <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                    </svg>
+                </a>
+                <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Dribbble">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_projects_dribbble_nav)">
+                            <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_projects_dribbble_nav">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <button type="button" class="nav-burger-btn" id="nav-burger-open" aria-label="打开菜单" aria-expanded="false" aria-controls="mobile-menu">
+            <img src="Design/icn_Menu_Cravision.svg" alt="" width="24" height="24">
+        </button>
+    </nav>
+
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="logo-group" aria-label="返回首页">
+                <img src="Design/logo_2.svg" alt="Cre-Vision logo" class="site-logo-img" width="64" height="64">
+                <div class="logo-text">
+                    <span class="logo-main-text">Cre-Vision</span>
+                    <span class="logo-sub-text">UX&UI design</span>
+                </div>
+            </a>
+            <button type="button" class="mobile-menu-close" id="mobile-menu-close" aria-label="关闭菜单">
+                <img src="Design/icn_Menu_CravisionClose.svg" alt="" width="24" height="24">
+            </button>
+        </div>
+        <div class="mobile-menu-stack">
+            <nav class="mobile-menu-body" aria-label="主导航">
+                <a href="index.html#top" class="mobile-menu-link"><span class="mobile-menu-label">Home</span></a>
+                <a href="projects.html" class="mobile-menu-link active"><span class="mobile-menu-label">Projects</span></a>
+                <a href="about.html" class="mobile-menu-link"><span class="mobile-menu-label">About</span></a>
+            </nav>
+            <div class="mobile-menu-cta-wrap">
+                <button type="button" class="mobile-menu-cta" id="mobile-menu-contact">Contact</button>
+            </div>
+            <div class="mobile-menu-social">
+                <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Behance">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                        <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                    </svg>
+                </a>
+                <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="nav-social-link" aria-label="Dribbble">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_menu_dribbble_projects)">
+                            <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_menu_dribbble_projects">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <section class="projects-hero">
+        <div class="projects-hero-inner">
+            <h1 class="projects-title">Our Projects</h1>
+            <div class="projects-underline"></div>
+        </div>
+        <div class="hero-star star-a">
+            <img src="Design/star1.svg" alt="" width="70" height="70">
+        </div>
+        <div class="hero-star star-b">
+            <img src="Design/star1.svg" alt="" width="122" height="122">
+        </div>
+    </section>
+
+    <main class="projects-main">
+        <section class="projects-grid" aria-label="projects list">
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 1 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 2 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 3 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 4 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 5 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 6 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 7 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+            <article class="project-card">
+                <div class="project-thumb"></div>
+                <h2 class="project-name">Project 8 Title | <span class="text-cn">中文标题</span></h2>
+                <span class="project-tag">Website Design</span>
+                <p class="project-desc">Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididunt, Ut Labore Et Dolore Magna.</p>
+                <p class="project-desc-cn text-cn">中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换中文案例介绍文案可替换。</p>
+                <a href="project-detail.html" class="project-link">View <span>→</span></a>
+            </article>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-info">
+            <span class="footer-heading">Contact Us</span>
+            <span class="footer-email">Email us : @crevition.com</span>
+        </div>
+        <div class="social-btns">
+            <a href="https://www.behance.net/cccherry" target="_blank" rel="noopener noreferrer" class="social-pill">
+                <span class="social-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.75" y="0.75" width="22.5" height="22.5" rx="11.25" stroke="#0094FF" stroke-width="1.5"/>
+                        <path d="M18.3642 7.66327H14.377V8.63265H18.3642V7.66327ZM16.4217 10.9796C15.9617 10.9796 15.5527 11.1327 15.2971 11.3878C14.9904 11.6429 14.8371 12.051 14.8371 12.5102H18.0064C17.853 11.4388 17.3419 10.9796 16.4217 10.9796ZM16.524 15.5204C16.8307 15.5204 17.1885 15.4184 17.4952 15.2653C17.8019 15.1122 18.0064 14.8571 18.1086 14.602H19.8466C19.3355 16.1837 18.2109 17 16.524 17C15.3994 17 14.5304 16.6429 13.8658 15.9796C13.2013 15.3163 12.8946 14.398 12.8946 13.2755C12.8946 12.2041 13.2524 11.2857 13.9169 10.5714C14.5815 9.85714 15.4505 9.5 16.524 9.5C17.2396 9.5 17.853 9.65306 18.4153 10.0102C18.9265 10.3673 19.3355 10.8265 19.5911 11.3878C19.8466 11.949 20 12.6122 20 13.3265V13.6837H14.8882C14.8882 14.2449 15.0415 14.7041 15.3482 15.0102C15.5527 15.3163 15.9617 15.5204 16.524 15.5204ZM6.14697 15.1122H8.44728C9.52077 15.1122 10.0319 14.7041 10.0319 13.8367C10.0319 12.9184 9.52077 12.4592 8.4984 12.4592H6.14697V15.1122ZM6.14697 10.9286H8.34505C8.75399 10.9286 9.0607 10.8265 9.31629 10.6224C9.57189 10.4184 9.67412 10.1633 9.67412 9.7551C9.67412 8.9898 9.16294 8.63265 8.19169 8.63265H6.14697V10.9286ZM4 7H8.60064C9.0607 7 9.46965 7.05102 9.82748 7.10204C10.1853 7.15306 10.492 7.30612 10.7987 7.45918C11.1054 7.61225 11.3099 7.86735 11.5144 8.22449C11.6677 8.53061 11.77 8.93878 11.77 9.39796C11.77 10.3163 11.3099 11.0306 10.4409 11.4388C11.0543 11.5918 11.4633 11.898 11.77 12.3061C12.0767 12.7143 12.23 13.2755 12.23 13.8878C12.23 14.2959 12.1789 14.6531 12.0256 14.9592C11.9233 15.2653 11.7188 15.5204 11.5144 15.7755C11.3099 15.9796 11.0543 16.1837 10.7476 16.3367C10.4409 16.4898 10.1342 16.5918 9.82748 16.6429C9.52077 16.6939 9.16294 16.7449 8.80511 16.7449H4V7Z" fill="#0094FF"/>
+                    </svg>
+                </span>
+                <span>Behance</span>
+            </a>
+            <a href="https://dribbble.com/cccherry" target="_blank" rel="noopener noreferrer" class="social-pill">
+                <span class="social-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_projects_dribbble_footer)">
+                            <path d="M12 0C5.375 0 0 5.375 0 12C0 18.625 5.375 24 12 24C18.612 24 24 18.625 24 12C24 5.375 18.612 0 12 0ZM19.926 5.531C21.4034 7.33038 22.221 9.58091 22.243 11.909C21.905 11.844 18.521 11.154 15.111 11.584C15.033 11.414 14.967 11.232 14.889 11.05C14.6769 10.5494 14.4515 10.0546 14.213 9.566C17.987 8.03 19.705 5.818 19.926 5.531ZM12 1.771C14.603 1.771 16.985 2.746 18.794 4.347C18.612 4.607 17.063 6.677 13.419 8.043C11.739 4.959 9.879 2.433 9.592 2.043C10.3813 1.85868 11.1894 1.76706 12 1.77V1.771ZM7.64 2.733C7.913 3.098 9.735 5.636 11.44 8.655C6.65 9.931 2.42 9.905 1.965 9.905C2.629 6.729 4.777 4.087 7.64 2.733ZM1.744 12.013V11.701C2.187 11.714 7.158 11.779 12.274 10.243C12.573 10.816 12.846 11.401 13.106 11.987C12.976 12.026 12.833 12.065 12.703 12.104C7.419 13.809 4.607 18.469 4.373 18.859C2.68041 16.9805 1.7438 14.5416 1.744 12.013ZM12 22.256C9.631 22.256 7.445 21.449 5.714 20.096C5.896 19.718 7.978 15.709 13.757 13.692C13.783 13.679 13.797 13.679 13.822 13.666C15.267 17.401 15.852 20.538 16.009 21.436C14.7428 21.9806 13.3783 22.2596 12 22.256ZM17.714 20.499C17.61 19.874 17.063 16.881 15.722 13.197C18.937 12.69 21.748 13.523 22.1 13.64C21.657 16.49 20.017 18.95 17.714 20.499Z" fill="#EA4C89"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_projects_dribbble_footer">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </span>
+                <span>Dribbble</span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            const menu = document.getElementById('mobile-menu');
+            const burger = document.getElementById('nav-burger-open');
+            const closeBtn = document.getElementById('mobile-menu-close');
+            const contactBtn = document.getElementById('mobile-menu-contact');
+            const mobileViewport = window.matchMedia('(max-width: 480px)');
+
+            function openMenu() {
+                if (!mobileViewport.matches) return;
+                menu.classList.add('is-open');
+                menu.setAttribute('aria-hidden', 'false');
+                if (burger) burger.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                menu.classList.remove('is-open');
+                menu.setAttribute('aria-hidden', 'true');
+                if (burger) burger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            if (burger) burger.addEventListener('click', openMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+            if (menu) {
+                menu.querySelectorAll('.mobile-menu-link').forEach(function (a) {
+                    a.addEventListener('click', function () {
+                        closeMenu();
+                    });
+                });
+            }
+            if (contactBtn) {
+                contactBtn.addEventListener('click', function () {
+                    closeMenu();
+                    if (typeof window.openContactModal === 'function') window.openContactModal();
+                });
+            }
+        })();
+    </script>
+
+    <div class="contact-modal-overlay" id="contact-modal" aria-hidden="true">
+        <div class="contact-modal-panel" role="dialog" aria-modal="true" aria-label="Contact Us">
+            <div class="contact-modal-header">
+                <h2 class="contact-modal-title">Contact Us <em class="text-cn">| 联系我们</em></h2>
+                <button type="button" class="contact-modal-close" id="contact-modal-close" aria-label="关闭弹窗">×</button>
+            </div>
+            <div class="contact-modal-body">
+                <div class="contact-input-row">
+                    <input class="contact-input" type="email" placeholder="Your Email Address">
+                    <input class="contact-input" type="tel" name="phone" placeholder="Your phone number  (Optional)">
+                </div>
+                <div class="contact-message-row">
+                    <textarea class="contact-textarea" placeholder="Please tell us your project or questions"></textarea>
+                    <button type="button" class="contact-send-btn is-disabled"><span class="contact-send-icon"><img src="Design/icn_email.svg" alt="" width="30" height="30"></span><span class="contact-send-label-en">Send</span><span class="contact-send-divider" aria-hidden="true">｜</span><span class="contact-send-label-cn text-cn">发送邮件</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        (function () {
+            const modal = document.getElementById('contact-modal');
+            const closeBtn = document.getElementById('contact-modal-close');
+            if (!modal || !closeBtn) return;
+
+            function openContactModal() {
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeContactModal() {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+            window.openContactModal = openContactModal;
+
+            document.querySelectorAll('.btn-contact, #mobile-menu-contact, .about-contact-cta').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    openContactModal();
+                });
+            });
+            closeBtn.addEventListener('click', closeContactModal);
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeContactModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeContactModal();
+            });
+        })();
+    </script>
+
+
+    <div class="contact-success-overlay" id="contact-success-modal" aria-hidden="true">
+        <div class="contact-success-wrap" role="dialog" aria-modal="true" aria-label="Message Sent">
+            <div class="contact-success-card">
+                <img src="Design/Paper_airplane.svg?v=20260420" alt="" class="contact-success-plane" width="180" height="126">
+                <h3 class="contact-success-title">Message<br>Sent,<br>Thank You !</h3>
+                <div class="contact-success-cn-highlight text-cn">消息已发出，谢谢!</div>
+                <p class="contact-success-reply">We Will Reply In 24 Hours ｜<br><span class="text-cn">我們將在24小時內與您聯繫</span></p>
+            </div>
+            <button type="button" class="contact-success-confirm">Got It ｜ <span class="text-cn">收到</span></button>
+        </div>
+    </div>
+
+
+    <script>
+        (function () {
+            const formModal = document.getElementById('contact-modal');
+            const successModal = document.getElementById('contact-success-modal');
+            const successConfirmBtn = document.querySelector('.contact-success-confirm');
+            if (!formModal || !successModal || !successConfirmBtn) return;
+
+            function openSuccessModal() {
+                successModal.classList.add('is-open');
+                successModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSuccessModal() {
+                successModal.classList.remove('is-open');
+                successModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            const sendButtons = formModal.querySelectorAll('.contact-send-btn');
+            const emailInput = formModal.querySelector('input[type="email"]');
+            const messageInput = formModal.querySelector('.contact-textarea');
+
+            function hasRequiredFields() {
+                const hasEmail = emailInput && emailInput.value.trim().length > 0;
+                const hasMessage = messageInput && messageInput.value.trim().length > 0;
+                return hasEmail && hasMessage;
+            }
+
+            function syncSendButtonState() {
+                const enabled = hasRequiredFields();
+                sendButtons.forEach(function (btn) {
+                    btn.classList.toggle('is-disabled', !enabled);
+                    btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+                });
+            }
+
+            if (emailInput) emailInput.addEventListener('input', syncSendButtonState);
+            if (messageInput) messageInput.addEventListener('input', syncSendButtonState);
+            syncSendButtonState();
+
+            sendButtons.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (!hasRequiredFields()) {
+                        syncSendButtonState();
+                        return;
+                    }
+
+                    formModal.classList.remove('is-open');
+                    formModal.setAttribute('aria-hidden', 'true');
+                    openSuccessModal();
+                });
+            });
+
+            successConfirmBtn.addEventListener('click', closeSuccessModal);
+            successModal.addEventListener('click', function (e) {
+                if (e.target === successModal) closeSuccessModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && successModal.classList.contains('is-open')) {
+                    closeSuccessModal();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
