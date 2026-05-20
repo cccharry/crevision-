@@ -61,6 +61,13 @@ const { title, activeNav = 'projects' } = Astro.props;
         display: flex;
         flex-direction: column;
         padding: 20px 16px 24px;
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
+        z-index: 20;
       }
 
       .adm-sidebar-logo {
@@ -375,7 +382,11 @@ const { title, activeNav = 'projects' } = Astro.props;
           flex-direction: column;
         }
         .adm-sidebar {
+          position: static;
           width: 100%;
+          height: auto;
+          max-height: none;
+          overflow-y: visible;
           border-right: none;
           border-bottom: 1px solid var(--adm-border);
         }

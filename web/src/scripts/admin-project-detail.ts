@@ -346,9 +346,16 @@ function renderSectionCard(sec: DraftDetailSection): HTMLElement {
   return renderStandardSectionCard(sec);
 }
 
-function getImageBlockInSection(sectionInstanceKey: string, blockKey: string): DraftImageBlock | undefined {
-  const sec = draft!.detailSections.find((s) => s._key === sectionInstanceKey);
-  const blk = sec?.blocks.find((b) => b._key === blockKey && b._type === 'sectionImageBlock');
+function getSectionByInstanceKey(sectionInstanceKey: string): DraftDetailSection | undefined {
+  return draft?.detailSections.find((s) => s._key === sectionInstanceKey);
+}
+
+/** 取板块内唯一的图片块（normalize 后仅保留一块） */
+function getImageBlockInSection(sectionInstanceKey: string): DraftImageBlock | undefined {
+  const sec = getSectionByInstanceKey(sectionInstanceKey);
+  if (!sec) return undefined;
+  normalizeStandardSection(sec);
+  const blk = sec.blocks.find((b) => b._type === 'sectionImageBlock');
   return blk as DraftImageBlock | undefined;
 }
 
@@ -357,8 +364,9 @@ function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftI
   const wrap = document.createElement('div');
   wrap.className = 'adm-sec-images-wrap';
 
-  const addInputId = `sec-img-add-${imageBlock._key}`;
-  const reuploadInputId = `sec-img-reupload-${imageBlock._key}`;
+  const safeId = imageBlock._key.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const addInputId = `sec-img-add-${safeId}`;
+  const reuploadInputId = `sec-img-reupload-${safeId}`;
 
   const rowsHtml = imageBlock.images
     .map(
@@ -407,32 +415,45 @@ function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftI
 
   let reuploadIdx: number | null = null;
 
-  wrap.querySelector(`[data-trigger-sec-img-add]`)?.addEventListener('click', () => {
-    document.getElementById(addInputId)?.click();
+  const addBtn = wrap.querySelector('[data-trigger-sec-img-add]') as HTMLButtonElement | null;
+  const addInp = wrap.querySelector('input[data-sec-img-add]') as HTMLInputElement | null;
+  const reuploadInp = wrap.querySelector('input[data-sec-img-reupload]') as HTMLInputElement | null;
+
+  addBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    addInp?.click();
   });
 
-  wrap.querySelector(`[data-sec-img-add]`)?.addEventListener('change', async () => {
-    const inp = document.getElementById(addInputId) as HTMLInputElement | null;
-    const blk = getImageBlockInSection(sectionInstanceKey, imageBlock._key);
-    if (!inp?.files?.length || !blk) return;
-    for (const file of Array.from(inp.files)) {
-      if (!file.type.startsWith('image/')) continue;
+  addInp?.addEventListener('change', async () => {
+    const files = addInp.files ? Array.from(addInp.files) : [];
+    addInp.value = '';
+    if (!files.length) return;
+
+    const blk = getImageBlockInSection(sectionInstanceKey);
+    if (!blk) return;
+
+    let added = false;
+    for (const file of files) {
+      if (!isImageFile(file)) continue;
       const dataUrl = await readFile(file);
-      if (dataUrl) blk.images.push({ dataUrl });
+      if (dataUrl) {
+        blk.images.push({ dataUrl });
+        added = true;
+      }
     }
-    inp.value = '';
+    if (!added) return;
     saveQuiet();
     renderSections();
   });
 
-  const reuploadInp = document.getElementById(reuploadInputId) as HTMLInputElement | null;
   reuploadInp?.addEventListener('change', async () => {
-    const blk = getImageBlockInSection(sectionInstanceKey, imageBlock._key);
     const file = reuploadInp.files?.[0];
-    if (!blk || reuploadIdx === null || !file?.type.startsWith('image/')) return;
-    const dataUrl = await readFile(file);
-    if (dataUrl) blk.images[reuploadIdx] = { ...blk.images[reuploadIdx], dataUrl };
     reuploadInp.value = '';
+    const blk = getImageBlockInSection(sectionInstanceKey);
+    if (!blk || reuploadIdx === null || !file || !isImageFile(file)) return;
+    const dataUrl = await readFile(file);
+    if (!dataUrl) return;
+    blk.images[reuploadIdx] = { ...blk.images[reuploadIdx], dataUrl };
     reuploadIdx = null;
     saveQuiet();
     renderSections();
@@ -447,9 +468,8 @@ function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftI
 
   wrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const blkKey = (btn as HTMLButtonElement).dataset.blk;
       const idx = Number((btn as HTMLButtonElement).dataset.removeImg);
-      const blk = getImageBlockInSection(sectionInstanceKey, blkKey || imageBlock._key);
+      const blk = getImageBlockInSection(sectionInstanceKey);
       if (!blk) return;
       blk.images.splice(idx, 1);
       saveQuiet();
@@ -458,12 +478,12 @@ function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftI
   });
 
   const stack = wrap.querySelector('[data-img-stack]') as HTMLElement | null;
-  if (stack) bindSectionImageDrag(stack, sectionInstanceKey, imageBlock._key);
+  if (stack) bindSectionImageDrag(stack, sectionInstanceKey);
 
   return wrap;
 }
 
-function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string, blockKey: string): void {
+function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string): void {
   let dragFrom = -1;
 
   stack.querySelectorAll<HTMLElement>('.adm-img-row').forEach((row) => {
@@ -497,7 +517,7 @@ function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string, bl
       row.classList.remove('is-drag-over');
       const dragTo = Number(row.dataset.imgRow);
       if (dragFrom < 0 || dragFrom === dragTo) return;
-      const blk = getImageBlockInSection(sectionInstanceKey, blockKey);
+      const blk = getImageBlockInSection(sectionInstanceKey);
       if (!blk) return;
       const imgs = [...blk.images];
       const [moved] = imgs.splice(dragFrom, 1);
@@ -508,6 +528,11 @@ function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string, bl
       renderSections();
     });
   });
+}
+
+function isImageFile(file: File): boolean {
+  if (file.type.startsWith('image/')) return true;
+  return /\.(jpe?g|png|gif|webp|svg|bmp|heic|heif)$/i.test(file.name);
 }
 
 function readFile(file: File): Promise<string | null> {
@@ -532,7 +557,12 @@ function saveQuiet(): void {
   if (!draft) return;
   Object.assign(draft, collectBasicsFromDom());
   syncBackgroundFromSections();
-  upsertDraft(touchDraft(draft));
+  try {
+    upsertDraft(touchDraft(draft));
+  } catch (err) {
+    console.error(err);
+    alert('保存到浏览器本地失败，图片可能过大。请减少图片数量或尺寸后重试。');
+  }
 }
 
 export function bootAdminProjectDetail(): void {
