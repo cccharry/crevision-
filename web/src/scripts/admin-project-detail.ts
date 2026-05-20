@@ -231,7 +231,38 @@ function renderProjectBackgroundCard(sec: DraftDetailSection): HTMLElement {
   return card;
 }
 
+/** 标准板块：合并为一块文案 + 一块图片列表（与设计稿一致，无 Image group） */
+function normalizeStandardSection(sec: DraftDetailSection): void {
+  if (sec.sectionKey === 'projectBackground') return;
+  const textBlocks = sec.blocks.filter((b) => b._type === 'sectionTextBlock') as DraftTextBlock[];
+  const imageBlocks = sec.blocks.filter((b) => b._type === 'sectionImageBlock') as DraftImageBlock[];
+
+  let textBlock = textBlocks[0];
+  if (!textBlock) {
+    textBlock = {
+      _key: randomKey(),
+      _type: 'sectionTextBlock',
+      title: { en: '', zh: '' },
+      body: { en: '', zh: '' },
+    };
+  }
+
+  const mergedImages = imageBlocks.flatMap((b) => b.images);
+  let imageBlock = imageBlocks[0];
+  if (!imageBlock) {
+    imageBlock = { _key: randomKey(), _type: 'sectionImageBlock', images: mergedImages };
+  } else {
+    imageBlock = { ...imageBlock, images: mergedImages.length ? mergedImages : imageBlock.images };
+  }
+
+  sec.blocks = [textBlock, imageBlock];
+}
+
 function renderStandardSectionCard(sec: DraftDetailSection): HTMLElement {
+  normalizeStandardSection(sec);
+  const textBlock = sec.blocks.find((b) => b._type === 'sectionTextBlock') as DraftTextBlock;
+  const imageBlock = sec.blocks.find((b) => b._type === 'sectionImageBlock') as DraftImageBlock;
+
   const meta = SECTION_OPTIONS.find((o) => o.key === sec.sectionKey);
   const titleEn = meta?.label ?? sec.sectionKey;
   const iconSrc = meta?.iconSrc ?? '';
@@ -262,21 +293,34 @@ function renderStandardSectionCard(sec: DraftDetailSection): HTMLElement {
       </div>
     </div>
     <div class="adm-sec-card-divider"></div>
-    <div class="adm-blocks" data-blocks="${esc(sec._key)}"></div>
-    <div class="adm-sec-block-actions">
-      <button type="button" class="adm-btn adm-btn--outline" data-add-text="${esc(sec._key)}">+ Text block</button>
-      <button type="button" class="adm-btn adm-btn--outline" data-add-img="${esc(sec._key)}">+ Image group</button>
-    </div>`;
+    <div class="adm-field">
+      <label class="adm-label">EN Description</label>
+      <textarea class="adm-textarea" data-sec-body-en="${esc(sec._key)}" rows="5" placeholder="请输入"></textarea>
+    </div>
+    <div class="adm-field">
+      <label class="adm-label">CN Description</label>
+      <textarea class="adm-textarea" data-sec-body-zh="${esc(sec._key)}" rows="5" placeholder="请输入"></textarea>
+    </div>
+    <div class="adm-sec-images-mount" data-sec-images="${esc(sec._key)}"></div>`;
 
-  const blocksRoot = card.querySelector('.adm-blocks') as HTMLElement;
+  const taEn = card.querySelector(`[data-sec-body-en]`) as HTMLTextAreaElement | null;
+  const taZh = card.querySelector(`[data-sec-body-zh]`) as HTMLTextAreaElement | null;
+  if (taEn) taEn.value = textBlock.body.en || '';
+  if (taZh) taZh.value = textBlock.body.zh || '';
 
-  sec.blocks.forEach((block) => {
-    if (block._type === 'sectionTextBlock') {
-      blocksRoot.appendChild(renderTextBlock(sec._key, block));
-    } else {
-      blocksRoot.appendChild(renderImageBlock(sec._key, block));
-    }
-  });
+  const syncText = () => {
+    const s = draft!.detailSections.find((x) => x._key === sec._key);
+    const tb = s?.blocks.find((b) => b._type === 'sectionTextBlock') as DraftTextBlock | undefined;
+    if (!tb) return;
+    tb.body.en = taEn?.value ?? '';
+    tb.body.zh = taZh?.value ?? '';
+    saveQuiet();
+  };
+  taEn?.addEventListener('input', syncText);
+  taZh?.addEventListener('input', syncText);
+
+  const imagesMount = card.querySelector('.adm-sec-images-mount') as HTMLElement;
+  imagesMount.appendChild(renderSectionImagesPanel(sec._key, imageBlock));
 
   card.querySelector(`[data-sec-toggle]`)?.addEventListener('change', (ev) => {
     const on = (ev.target as HTMLInputElement).checked;
@@ -292,33 +336,6 @@ function renderStandardSectionCard(sec: DraftDetailSection): HTMLElement {
     renderSections();
   });
 
-  card.querySelector(`[data-add-text]`)?.addEventListener('click', () => {
-    const s = draft!.detailSections.find((x) => x._key === sec._key);
-    if (!s) return;
-    const nb: DraftTextBlock = {
-      _key: randomKey(),
-      _type: 'sectionTextBlock',
-      title: { en: '', zh: '' },
-      body: { en: '', zh: '' },
-    };
-    s.blocks.push(nb);
-    saveQuiet();
-    blocksRoot.appendChild(renderTextBlock(sec._key, nb));
-  });
-
-  card.querySelector(`[data-add-img]`)?.addEventListener('click', () => {
-    const s = draft!.detailSections.find((x) => x._key === sec._key);
-    if (!s) return;
-    const nb: DraftImageBlock = {
-      _key: randomKey(),
-      _type: 'sectionImageBlock',
-      images: [],
-    };
-    s.blocks.push(nb);
-    saveQuiet();
-    blocksRoot.appendChild(renderImageBlock(sec._key, nb));
-  });
-
   return card;
 }
 
@@ -329,101 +346,74 @@ function renderSectionCard(sec: DraftDetailSection): HTMLElement {
   return renderStandardSectionCard(sec);
 }
 
-function renderTextBlock(sectionKey: string, block: DraftTextBlock): HTMLElement {
-  const wrap = document.createElement('div');
-  wrap.className = 'adm-block adm-block-text';
-  wrap.innerHTML = `
-    <div class="adm-block-text-head">
-      <span class="adm-block-text-label">Text block</span>
-      <button type="button" class="adm-btn adm-btn--outline adm-btn-text-block-remove" data-del-block="${esc(block._key)}">Remove</button>
-    </div>
-    <div class="adm-field">
-      <label class="adm-label">EN Description</label>
-      <textarea class="adm-textarea" data-part="body-en" rows="5" placeholder="请输入"></textarea>
-    </div>
-    <div class="adm-field" style="margin-bottom:0">
-      <label class="adm-label">CN Description</label>
-      <textarea class="adm-textarea" data-part="body-zh" rows="5" placeholder="请输入"></textarea>
-    </div>`;
-
-  const taEn = wrap.querySelector('[data-part="body-en"]') as HTMLTextAreaElement | null;
-  const taZh = wrap.querySelector('[data-part="body-zh"]') as HTMLTextAreaElement | null;
-  if (taEn) taEn.value = block.body.en || '';
-  if (taZh) taZh.value = block.body.zh || '';
-
-  const sync = () => {
-    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-    const b = sec?.blocks.find(
-      (x) => x._key === block._key && x._type === 'sectionTextBlock'
-    ) as DraftTextBlock | undefined;
-    if (!b) return;
-    b.body.en = taEn?.value ?? '';
-    b.body.zh = taZh?.value ?? '';
-    saveQuiet();
-  };
-
-  taEn?.addEventListener('input', sync);
-  taZh?.addEventListener('input', sync);
-
-  wrap.querySelector('[data-del-block]')?.addEventListener('click', () => {
-    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-    if (!sec) return;
-    sec.blocks = sec.blocks.filter((b) => b._key !== block._key);
-    saveQuiet();
-    wrap.remove();
-  });
-
-  return wrap;
+function getImageBlockInSection(sectionInstanceKey: string, blockKey: string): DraftImageBlock | undefined {
+  const sec = draft!.detailSections.find((s) => s._key === sectionInstanceKey);
+  const blk = sec?.blocks.find((b) => b._key === blockKey && b._type === 'sectionImageBlock');
+  return blk as DraftImageBlock | undefined;
 }
 
-function renderImageBlock(sectionKey: string, block: DraftImageBlock): HTMLElement {
+/** 板块内 Images：纵向全宽、可拖拽排序、单张 Re-Upload / Remove（无 Image group） */
+function renderSectionImagesPanel(sectionInstanceKey: string, imageBlock: DraftImageBlock): HTMLElement {
   const wrap = document.createElement('div');
-  wrap.className = 'adm-block adm-block-img';
+  wrap.className = 'adm-sec-images-wrap';
 
-  const imgsHtml = block.images
+  const addInputId = `sec-img-add-${imageBlock._key}`;
+  const reuploadInputId = `sec-img-reupload-${imageBlock._key}`;
+
+  const rowsHtml = imageBlock.images
     .map(
       (im, i) => `
-    <div class="adm-img-tile" data-img-tile="${i}">
-      <div class="adm-upload-frame adm-upload-frame--3-2">
-        ${
-          im.dataUrl
-            ? `<img src="${esc(im.dataUrl)}" class="adm-upload-cover" alt="" />`
-            : `<div class="adm-upload-placeholder"></div>`
-        }
+    <div class="adm-img-row" draggable="true" data-img-row="${i}">
+      <div class="adm-img-row-drag" title="拖拽排序" aria-hidden="true">
+        <img src="/admin/icons/icn_backend_drag_to_move.svg" alt="" width="14" height="14" />
       </div>
-      <button type="button" class="adm-btn adm-btn--outline adm-btn-img-tile-remove" data-remove-img="${i}" data-blk="${esc(block._key)}">Remove</button>
+      <div class="adm-img-row-body">
+        <div class="adm-img-row-preview">
+          ${
+            im.dataUrl
+              ? `<img src="${esc(im.dataUrl)}" class="adm-img-fluid" alt="" />`
+              : `<div class="adm-img-placeholder-box" aria-hidden="true"></div>`
+          }
+        </div>
+        <div class="adm-img-row-actions">
+          <button type="button" class="adm-img-action-btn" data-reupload-img="${i}" data-blk="${esc(imageBlock._key)}">
+            <img src="${HERO_ICON_RESET}" alt="" width="16" height="16" />
+            Re-Upload Image
+          </button>
+          <span class="adm-img-action-sep" aria-hidden="true">|</span>
+          <button type="button" class="adm-img-action-btn adm-img-action-btn--remove" data-remove-img="${i}" data-blk="${esc(imageBlock._key)}">
+            <img src="/admin/icons/icn_backend_remove_project.svg" alt="" width="16" height="16" />
+            Remove Image
+          </button>
+        </div>
+      </div>
     </div>`
     )
     .join('');
 
-  const fileInputId = `img-file-${block._key}`;
   wrap.innerHTML = `
-    <div class="adm-block-text-head">
-      <span class="adm-block-text-label">Image group</span>
-      <button type="button" class="adm-btn adm-btn--outline adm-btn-text-block-remove" data-del-block-img="${esc(block._key)}">Remove group</button>
-    </div>
     <div class="adm-images-panel">
       <div class="adm-images-bar">
         <span class="adm-images-bar-label">Images</span>
-        <button type="button" class="adm-btn-add-images" data-trigger-img-file="${esc(block._key)}" aria-controls="${esc(fileInputId)}">
+        <button type="button" class="adm-btn-add-images" data-trigger-sec-img-add="${esc(imageBlock._key)}">
           <span class="adm-btn-add-images-plus" aria-hidden="true">+</span>
           Add Image
         </button>
-        <input type="file" id="${esc(fileInputId)}" class="adm-hero-file-input" accept="image/*" multiple data-img-file="${esc(block._key)}" />
+        <input type="file" id="${esc(addInputId)}" class="adm-hero-file-input" accept="image/*" multiple data-sec-img-add="${esc(imageBlock._key)}" />
+        <input type="file" id="${esc(reuploadInputId)}" class="adm-hero-file-input" accept="image/*" data-sec-img-reupload="${esc(imageBlock._key)}" />
       </div>
-      <div class="adm-images-grid${block.images.length === 0 ? ' is-empty' : ''}" data-img-list="${esc(block._key)}">${imgsHtml}</div>
+      <div class="adm-images-stack${imageBlock.images.length === 0 ? ' is-empty' : ''}" data-img-stack="${esc(imageBlock._key)}">${rowsHtml}</div>
     </div>`;
 
-  wrap.querySelector('[data-trigger-img-file]')?.addEventListener('click', () => {
-    document.getElementById(fileInputId)?.click();
+  let reuploadIdx: number | null = null;
+
+  wrap.querySelector(`[data-trigger-sec-img-add]`)?.addEventListener('click', () => {
+    document.getElementById(addInputId)?.click();
   });
 
-  wrap.querySelector('[data-img-file]')?.addEventListener('change', async () => {
-    const inp = wrap.querySelector('[data-img-file]') as HTMLInputElement | null;
-    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-    const blk = sec?.blocks.find((b) => b._key === block._key && b._type === 'sectionImageBlock') as
-      | DraftImageBlock
-      | undefined;
+  wrap.querySelector(`[data-sec-img-add]`)?.addEventListener('change', async () => {
+    const inp = document.getElementById(addInputId) as HTMLInputElement | null;
+    const blk = getImageBlockInSection(sectionInstanceKey, imageBlock._key);
     if (!inp?.files?.length || !blk) return;
     for (const file of Array.from(inp.files)) {
       if (!file.type.startsWith('image/')) continue;
@@ -435,28 +425,89 @@ function renderImageBlock(sectionKey: string, block: DraftImageBlock): HTMLEleme
     renderSections();
   });
 
+  const reuploadInp = document.getElementById(reuploadInputId) as HTMLInputElement | null;
+  reuploadInp?.addEventListener('change', async () => {
+    const blk = getImageBlockInSection(sectionInstanceKey, imageBlock._key);
+    const file = reuploadInp.files?.[0];
+    if (!blk || reuploadIdx === null || !file?.type.startsWith('image/')) return;
+    const dataUrl = await readFile(file);
+    if (dataUrl) blk.images[reuploadIdx] = { ...blk.images[reuploadIdx], dataUrl };
+    reuploadInp.value = '';
+    reuploadIdx = null;
+    saveQuiet();
+    renderSections();
+  });
+
+  wrap.querySelectorAll('[data-reupload-img]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      reuploadIdx = Number((btn as HTMLButtonElement).dataset.reuploadImg);
+      reuploadInp?.click();
+    });
+  });
+
   wrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const blkKey = (btn as HTMLButtonElement).dataset.blk;
       const idx = Number((btn as HTMLButtonElement).dataset.removeImg);
-      const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-      const blk = sec?.blocks.find((b) => b._key === blkKey) as DraftImageBlock | undefined;
-      if (!blk || blk._type !== 'sectionImageBlock') return;
+      const blk = getImageBlockInSection(sectionInstanceKey, blkKey || imageBlock._key);
+      if (!blk) return;
       blk.images.splice(idx, 1);
       saveQuiet();
       renderSections();
     });
   });
 
-  wrap.querySelector('[data-del-block-img]')?.addEventListener('click', () => {
-    const sec = draft!.detailSections.find((s) => s._key === sectionKey);
-    if (!sec) return;
-    sec.blocks = sec.blocks.filter((b) => b._key !== block._key);
-    saveQuiet();
-    renderSections();
-  });
+  const stack = wrap.querySelector('[data-img-stack]') as HTMLElement | null;
+  if (stack) bindSectionImageDrag(stack, sectionInstanceKey, imageBlock._key);
 
   return wrap;
+}
+
+function bindSectionImageDrag(stack: HTMLElement, sectionInstanceKey: string, blockKey: string): void {
+  let dragFrom = -1;
+
+  stack.querySelectorAll<HTMLElement>('.adm-img-row').forEach((row) => {
+    row.addEventListener('dragstart', (e) => {
+      dragFrom = Number(row.dataset.imgRow);
+      row.classList.add('is-dragging');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(dragFrom));
+      }
+    });
+
+    row.addEventListener('dragend', () => {
+      row.classList.remove('is-dragging');
+      stack.querySelectorAll('.adm-img-row').forEach((r) => r.classList.remove('is-drag-over'));
+      dragFrom = -1;
+    });
+
+    row.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+      row.classList.add('is-drag-over');
+    });
+
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('is-drag-over');
+    });
+
+    row.addEventListener('drop', (e) => {
+      e.preventDefault();
+      row.classList.remove('is-drag-over');
+      const dragTo = Number(row.dataset.imgRow);
+      if (dragFrom < 0 || dragFrom === dragTo) return;
+      const blk = getImageBlockInSection(sectionInstanceKey, blockKey);
+      if (!blk) return;
+      const imgs = [...blk.images];
+      const [moved] = imgs.splice(dragFrom, 1);
+      if (!moved) return;
+      imgs.splice(dragTo, 0, moved);
+      blk.images = imgs;
+      saveQuiet();
+      renderSections();
+    });
+  });
 }
 
 function readFile(file: File): Promise<string | null> {
@@ -587,6 +638,20 @@ function addSection(key: SectionKey): void {
   };
   if (key === 'projectBackground') {
     row.plainBody = { zh: '', en: '' };
+  } else {
+    row.blocks = [
+      {
+        _key: randomKey(),
+        _type: 'sectionTextBlock',
+        title: { en: '', zh: '' },
+        body: { en: '', zh: '' },
+      },
+      {
+        _key: randomKey(),
+        _type: 'sectionImageBlock',
+        images: [],
+      },
+    ];
   }
   draft.detailSections.push(row);
   upsertDraft(touchDraft(draft));
