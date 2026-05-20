@@ -116,12 +116,12 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         </div>
       </section>
 
-      <div class="adm-detail-page-footer">
-        <button type="button" class="adm-btn adm-btn--primary" id="btn-save">Save</button>
-        <button type="button" class="adm-btn adm-btn--outline" id="btn-detail-cancel">Cancel</button>
-      </div>
-
       <div id="sections-root"></div>
+
+      <div class="adm-detail-page-footer">
+        <button type="button" class="adm-btn adm-btn--detail-save" id="btn-save">Save</button>
+        <button type="button" class="adm-btn adm-btn--detail-cancel" id="btn-detail-cancel">Cancel</button>
+      </div>
     </div>
 
     <aside class="adm-detail-aside">
@@ -234,14 +234,35 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     align-items: start;
   }
 
-  /** 与新建项目弹窗底部一致：独立于 Main Content 白卡片，右对齐 */
+  /** 全部 Section 之后、Main Content 卡片外，右对齐（与新建项目弹窗底部一致） */
   .adm-detail-page-footer {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 12px;
-    margin-bottom: 28px;
+    margin-top: 24px;
+    margin-bottom: 40px;
     padding: 0 2px;
+  }
+
+  .adm-detail-page-footer .adm-btn--detail-save {
+    color: var(--adm-purple);
+    background: var(--adm-purple-soft);
+    border: 1px solid var(--adm-purple);
+  }
+
+  .adm-detail-page-footer .adm-btn--detail-save:hover {
+    background: rgba(182, 63, 255, 0.2);
+    border-color: var(--adm-purple-hover);
+  }
+
+  .adm-detail-page-footer .adm-btn--detail-cancel {
+    color: var(--adm-purple);
+    background: #fff;
+    border: 1px solid var(--adm-purple);
+  }
+
+  .adm-detail-page-footer .adm-btn--detail-cancel:hover {
+    background: var(--adm-purple-soft);
   }
 
   .adm-detail-aside {
