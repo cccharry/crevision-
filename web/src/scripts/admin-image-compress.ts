@@ -31,6 +31,8 @@ export const SAVE_COMPRESS_OPTS: CompressOptions = {
 };
 
 const PER_IMAGE_TIMEOUT_MS = 45_000;
+/** 单张图画布最长边，避免超出浏览器 canvas 上限 */
+const MAX_CANVAS_SIDE = 8192;
 
 export function isImageFile(file: File): boolean {
   if (file.type.startsWith('image/')) return true;
@@ -62,7 +64,12 @@ function scaleToFit(
     tw = (tw * maxH) / th;
     th = maxH;
   }
-  return { width: Math.max(1, Math.round(tw)), height: Math.max(1, Math.round(th)) };
+  let width = Math.max(1, Math.round(tw));
+  let height = Math.max(1, Math.round(th));
+  const scale = Math.min(1, MAX_CANVAS_SIDE / Math.max(width, height));
+  width = Math.max(1, Math.round(width * scale));
+  height = Math.max(1, Math.round(height * scale));
+  return { width, height };
 }
 
 function canvasToDataUrl(canvas: HTMLCanvasElement, quality: number): string {
@@ -99,28 +106,10 @@ async function decodeToCanvas(
   maxW: number,
   maxH: number,
 ): Promise<HTMLCanvasElement> {
-  const blob = await fetch(dataUrl).then((r) => r.blob());
-  try {
-    const bitmap = await createImageBitmap(blob);
-    const { width, height } = scaleToFit(bitmap.width, bitmap.height, maxW, maxH);
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      bitmap.close();
-      throw new Error('canvas unsupported');
-    }
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close();
-    return canvas;
-  } catch {
-    const img = await loadImageFromUrl(dataUrl);
-    const { width, height } = scaleToFit(img.naturalWidth, img.naturalHeight, maxW, maxH);
-    return drawToCanvas(img, width, height);
-  }
+  // 超长 data URL 用 fetch 在部分浏览器会失败，统一用 Image 解码
+  const img = await loadImageFromUrl(dataUrl);
+  const { width, height } = scaleToFit(img.naturalWidth, img.naturalHeight, maxW, maxH);
+  return drawToCanvas(img, width, height);
 }
 
 /** 将已有 data URL 重新编码压缩（保存失败时对草稿内图片重试） */
@@ -218,10 +207,10 @@ export async function readCompressedImageFile(
 export function draftHasOversizedImages(draft: AdminProjectDraft, thresholdChars = 480_000): boolean {
   const big = (url?: string | null) => !!url && url.startsWith('data:image/') && url.length > thresholdChars;
   if (big(draft.heroImageDataUrl)) return true;
-  for (const sec of draft.detailSections) {
-    for (const blk of sec.blocks) {
+  for (const sec of draft.detailSections ?? []) {
+    for (const blk of sec.blocks ?? []) {
       if (blk._type !== 'sectionImageBlock') continue;
-      for (const im of blk.images) {
+      for (const im of blk.images ?? []) {
         if (big(im.dataUrl)) return true;
       }
     }
@@ -233,20 +222,34 @@ export function draftHasOversizedImages(draft: AdminProjectDraft, thresholdChars
 export async function compressDraftImages(
   draft: AdminProjectDraft,
   opts?: CompressOptions,
-): Promise<void> {
+): Promise<{ failed: number }> {
   const o = opts ?? SAVE_COMPRESS_OPTS;
+  let failed = 0;
+
+  const compressOne = async (url: string): Promise<string> => {
+    try {
+      return await compressDataUrl(url, o);
+    } catch (e) {
+      console.warn('[cms] compress image failed', e);
+      failed += 1;
+      return url;
+    }
+  };
+
   if (draft.heroImageDataUrl?.startsWith('data:image/')) {
-    draft.heroImageDataUrl = await compressDataUrl(draft.heroImageDataUrl, o);
+    draft.heroImageDataUrl = await compressOne(draft.heroImageDataUrl);
   }
-  for (const sec of draft.detailSections) {
-    for (const blk of sec.blocks) {
+  for (const sec of draft.detailSections ?? []) {
+    for (const blk of sec.blocks ?? []) {
       if (blk._type !== 'sectionImageBlock') continue;
+      if (!Array.isArray(blk.images)) blk.images = [];
       for (let i = 0; i < blk.images.length; i++) {
         const url = blk.images[i]?.dataUrl;
         if (url?.startsWith('data:image/')) {
-          blk.images[i] = { ...blk.images[i], dataUrl: await compressDataUrl(url, o) };
+          blk.images[i] = { ...blk.images[i], dataUrl: await compressOne(url) };
         }
       }
     }
   }
+  return { failed };
 }
