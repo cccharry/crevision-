@@ -238,9 +238,21 @@ function renderProjectBackgroundCard(sec: DraftDetailSection): HTMLElement {
   return card;
 }
 
+/** 修补旧草稿结构，避免 blocks 缺失导致 Save 报错 */
+function repairDraftStructure(d: AdminProjectDraft): void {
+  if (!Array.isArray(d.detailSections)) d.detailSections = [];
+  for (const sec of d.detailSections) {
+    if (!Array.isArray(sec.blocks)) sec.blocks = [];
+    if (sec.sectionKey !== 'projectBackground') {
+      normalizeStandardSection(sec);
+    }
+  }
+}
+
 /** 标准板块：合并为一块文案 + 一块图片列表（与设计稿一致，无 Image group） */
 function normalizeStandardSection(sec: DraftDetailSection): void {
   if (sec.sectionKey === 'projectBackground') return;
+  if (!Array.isArray(sec.blocks)) sec.blocks = [];
   const textBlocks = sec.blocks.filter((b) => b._type === 'sectionTextBlock') as DraftTextBlock[];
   const imageBlocks = sec.blocks.filter((b) => b._type === 'sectionImageBlock') as DraftImageBlock[];
 
@@ -582,14 +594,21 @@ async function saveQuietWithRetry(): Promise<boolean> {
   Object.assign(draft, collectBasicsFromDom());
   syncBackgroundFromSections();
 
+  repairDraftStructure(draft);
+  bumpCarouselOrderIfShown(draft);
+
   let didCompress = false;
   if (draftHasOversizedImages(draft)) {
     try {
-      await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
+      const { failed } = await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
       didCompress = true;
+      if (failed > 0) {
+        alert(`${failed} 张图片未能压缩，已保留原图；若保存失败请删除该图后重新上传。`);
+      }
     } catch (err) {
       console.error(err);
-      alert('压缩图片超时或失败。请删除过大的图片后重新上传，再点 Save。');
+      const hint = err instanceof Error ? err.message : '';
+      alert(`压缩图片失败${hint ? `：${hint}` : ''}。请删除过大的图片后重新 Add Image，再点 Save。`);
       return false;
     }
   }
@@ -609,17 +628,24 @@ async function saveQuietWithRetry(): Promise<boolean> {
   }
 
   try {
-    await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
+    const { failed } = await compressDraftImages(draft, SAVE_COMPRESS_OPTS);
     upsertDraft(touchDraft(draft));
-    alert('图片体积较大，已自动压缩后保存（页面上仍可按全宽大图展示）。');
+    const extra = failed > 0 ? `（${failed} 张图未能压缩）` : '';
+    alert(`图片体积较大，已自动压缩后保存${extra}。`);
     return true;
   } catch (err) {
     console.error(err);
+    const hint = err instanceof Error ? err.message : '';
     alert(
-      '保存仍失败：图片总容量过大。请减少张数，或删除旧图后重新 Add Image 上传。',
+      `保存仍失败${hint ? `：${hint}` : ''}。请减少图片张数，或删除旧图后重新 Add Image 上传。`,
     );
     return false;
   }
+}
+
+function formatSaveError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
 }
 
 export function bootAdminProjectDetail(): void {
@@ -634,6 +660,7 @@ export function bootAdminProjectDetail(): void {
     return;
   }
   draft = d;
+  repairDraftStructure(draft);
 
   // 项目背景为主内容区默认首块；无则从顶层 background 迁移或新建空块
   const hasPb = draft.detailSections.some((s) => s.sectionKey === 'projectBackground');
@@ -683,13 +710,12 @@ export function bootAdminProjectDetail(): void {
     }
     if (cancelBtn) cancelBtn.disabled = true;
     try {
-      bumpCarouselOrderIfShown(draft);
       const ok = await saveQuietWithRetry();
       if (!ok) return;
       window.location.href = '/admin/projects';
     } catch (err) {
       console.error(err);
-      alert('保存时发生错误，请打开浏览器控制台查看详情或刷新后重试。');
+      alert(`保存时发生错误：${formatSaveError(err)}\n\n请打开浏览器控制台 (F12) 查看详情，或删除过大的图片后重试。`);
     } finally {
       if (btn) {
         btn.disabled = false;
