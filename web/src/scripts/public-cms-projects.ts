@@ -9,9 +9,13 @@ export type PublicProject = {
   year?: string;
   heroImageDataUrl?: string | null;
   visibleOnProjectsPage?: boolean;
+  showOnHomeCarousel?: boolean;
+  homeCarouselOrder?: number;
+  projectsListOrder?: number;
   introduction?: { zh?: string; en?: string };
   services?: string[];
   detailSections?: unknown[];
+  updatedAt?: string;
   [k: string]: unknown;
 };
 
@@ -35,5 +39,52 @@ export async function fetchPublicProjects(): Promise<{
 }
 
 export function projectTitle(p: PublicProject): string {
-  return (p.title?.zh || p.title?.en || p.slug || 'Untitled').trim();
+  return (p.title?.en || p.title?.zh || p.slug || 'Untitled').trim();
+}
+
+export function projectTitleEn(p: PublicProject): string {
+  return (p.title?.en || p.title?.zh || p.slug || 'Project').trim();
+}
+
+export function projectTitleZh(p: PublicProject): string {
+  return (p.title?.zh || '').trim();
+}
+
+export function projectViewHref(p: PublicProject): string {
+  const slug = (p.slug || '').trim();
+  return slug ? `/projects/view?slug=${encodeURIComponent(slug)}` : '/projects/';
+}
+
+export function formatServiceTags(p: PublicProject): { en: string; zh: string } {
+  const list = Array.isArray(p.services) ? p.services.filter(Boolean) : [];
+  if (!list.length) return { en: 'Design', zh: '设计' };
+  const en = list.join(' · ');
+  return { en, zh: en };
+}
+
+export function sortForCarousel(list: PublicProject[]): PublicProject[] {
+  return [...list]
+    .filter((p) => p.showOnHomeCarousel !== false)
+    .sort((a, b) => (a.homeCarouselOrder ?? 0) - (b.homeCarouselOrder ?? 0));
+}
+
+export function sortForProjectsPage(list: PublicProject[]): PublicProject[] {
+  return [...list]
+    .filter((p) => p.visibleOnProjectsPage !== false)
+    .sort((a, b) => {
+      const oa = a.projectsListOrder ?? 0;
+      const ob = b.projectsListOrder ?? 0;
+      if (oa !== ob) return oa - ob;
+      const ta = a.updatedAt || '';
+      const tb = b.updatedAt || '';
+      return tb.localeCompare(ta);
+    });
+}
+
+export function escHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
