@@ -5,22 +5,22 @@ interface Env {
   CMS_KV: KVNamespace;
 }
 
-/** 前台只读：已勾选「在 Projects 页展示」的案例（无需登录） */
+/** 前台只读：返回 KV 中全部作品，由页面按开关筛选（轮播 / 列表） */
 export async function onRequestGet(context: { env: Env }): Promise<Response> {
   const { env } = context;
   const row = await readPayload(env.CMS_KV);
   if (!row) {
     return Response.json({ projects: [], updatedAt: null });
   }
-  let projects: Array<{ visibleOnProjectsPage?: boolean; [k: string]: unknown }> = [];
+  let projects: unknown[] = [];
   try {
-    projects = JSON.parse(row.projectsJson) as typeof projects;
+    const parsed = JSON.parse(row.projectsJson) as unknown;
+    projects = Array.isArray(parsed) ? parsed.filter(Boolean) : [];
   } catch {
     projects = [];
   }
-  const visible = projects.filter((p) => p && p.visibleOnProjectsPage !== false);
   return Response.json({
-    projects: visible,
+    projects,
     updatedAt: row.updatedAt,
   });
 }
