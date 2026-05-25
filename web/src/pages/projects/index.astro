@@ -4,3 +4,8 @@ import raw from '../../data/projects-page.html?raw';
 const page = raw.replace(/^\s*<!DOCTYPE html>/i, '').trimStart();
 ---
 <Fragment set:html={page} />
+
+<script>
+  import { bootPublicProjectsPage } from '../../scripts/public-cms-projects-page.ts';
+  void bootPublicProjectsPage();
+</script>
