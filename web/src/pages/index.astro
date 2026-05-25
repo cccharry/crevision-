@@ -5,3 +5,8 @@ import raw from '../data/brand-home.html?raw';
 const page = raw.replace(/^\s*<!DOCTYPE html>/i, '').trimStart();
 ---
 <Fragment set:html={page} />
+
+<script>
+  import { bootPublicHome } from '../scripts/public-cms-home.ts';
+  void bootPublicHome();
+</script>
