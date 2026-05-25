@@ -263,6 +263,12 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 24px; color: #999;
         }
+        .project-item.has-cover {
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            color: transparent;
+        }
         .st-active { width: calc(702 / 1920 * 100vw); background: #DCDCDC; color: var(--cre-purple); }
         .st-r1 { width: calc(312 / 1920 * 100vw); }
         .st-r2 { width: calc(206 / 1920 * 100vw); }
@@ -1151,7 +1157,7 @@
         </div>
         <div class="nav-right">
             <div class="nav-item active">Home</div>
-            <a href="projects.html" class="nav-item">Projects</a>
+            <a href="/projects/" class="nav-item">Projects</a>
             <a href="about.html" class="nav-item">About</a>
             <button class="btn-contact">Contact</button>
             <div class="nav-social">
@@ -1197,7 +1203,7 @@
         <div class="mobile-menu-stack">
             <nav class="mobile-menu-body" aria-label="主导航">
                 <a href="#top" class="mobile-menu-link active"><span class="mobile-menu-label">Home</span></a>
-                <a href="projects.html" class="mobile-menu-link"><span class="mobile-menu-label">Projects</span></a>
+                <a href="/projects/" class="mobile-menu-link"><span class="mobile-menu-label">Projects</span></a>
                 <a href="about.html" class="mobile-menu-link mobile-menu-about"><span class="mobile-menu-label">About</span></a>
             </nav>
             <div class="mobile-menu-cta-wrap">
@@ -1246,8 +1252,8 @@
                 <span aria-hidden="true">|</span>
                 <span class="project-tag-cn text-cn">网页设计</span>
             </div>
-            <p class="text-zinc-500 text-[13px] leading-relaxed mb-3 mt-0">Project Short Description : Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            <p class="text-cn text-[13px] text-[#666] leading-relaxed mb-6 mt-0">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
+            <p id="p-desc-en" class="text-zinc-500 text-[13px] leading-relaxed mb-3 mt-0">Project Short Description : Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p id="p-desc-cn" class="text-cn text-[13px] text-[#666] leading-relaxed mb-6 mt-0">项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述 项目简短描述</p>
             <a href="project-detail.html" class="btn-view-project">View Project <span class="opacity-80" aria-hidden="true">|</span> <span class="text-cn">查看作品</span> <span>→</span></a>
         </div>
         <div class="project-slider-block">
@@ -1345,6 +1351,7 @@
     </footer>
 
     <script>
+        window.__CREVISION_CMS_HOME_PENDING__ = true;
         const rail = document.getElementById('rail');
         const projectDots = document.getElementById('project-dots');
         const total = 4;
@@ -1521,7 +1528,7 @@
             startAutoPlay();
         })();
 
-        build();
+        /* 轮播由 public-cms-home.ts 根据后台 CMS 数据初始化 */
 
         /* 手机端全屏菜单开关 */
         (function () {
